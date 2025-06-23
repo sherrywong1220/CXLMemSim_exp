@@ -1,0 +1,20 @@
+--- a/benchmark/bench.mk
++++ b/benchmark/bench.mk
+@@ -9,7 +9,8 @@
+ GRAPH_DIR = benchmark/graphs
+ RAW_GRAPH_DIR = benchmark/graphs/raw
+
+-GRAPHS = twitter web road kron urand
++# GRAPHS = twitter web road kron urand
++GRAPHS = web urand
+ ALL_GRAPHS =\
+        $(addsuffix .sg, $(GRAPHS)) \
+        $(addsuffix .wsg, $(GRAPHS)) \
+@@ -22,6 +23,8 @@ $(RAW_GRAPH_DIR):
+ .PHONY: bench-graphs
+ bench-graphs: $(RAW_GRAPH_DIR) $(ALL_GRAPHS_WITH_PATHS)
+
++.PHONY: gen-twitter
++gen-twitter: ${RAW_GRAPH_DIR} ${GRAPH_DIR}/twitter.sg
+
+ # Real-world

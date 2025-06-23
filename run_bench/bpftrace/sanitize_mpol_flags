@@ -1,0 +1,13 @@
+sudo bpftrace -e '
+kprobe:sanitize_mpol_flags
+{
+    $mode_ptr = reg("di");
+    $flags_ptr = reg("si");
+
+    $mode = *(int32)($mode_ptr);
+    $flags = *(uint16)($flags_ptr);  // unsigned short
+
+    printf("sanitize_mpol_flags() called: *mode = %d (0x%x), *flags = 0x%x\n", $mode, $mode, $flags);
+}
+'
+

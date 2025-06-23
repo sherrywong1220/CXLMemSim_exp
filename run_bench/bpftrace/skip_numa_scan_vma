@@ -1,0 +1,28 @@
+sudo bpftrace -e '
+kprobe:vma_policy_mof
+{
+    @vma[tid] = reg("di");
+}
+
+kretprobe:vma_policy_mof
+/retval == 0 && @vma[tid]/
+{
+    $vma = @vma[tid];
+    @migratable_failed[tid] = 1;
+
+    $vm_start = *(uint64)($vma + 0);
+    $vm_end   = *(uint64)($vma + 8);
+
+    printf("TID %d: vma_policy_mof=false, VMA=[0x%lx - 0x%lx]\n", tid, $vm_start, $vm_end);
+
+    delete(@vma[tid]);
+}
+
+tracepoint:sched:sched_skip_vma_numa
+{
+    if (@migratable_failed[tid]) {
+        printf("TID %d: skipped due to !vma_policy_mof\n", tid);
+        delete(@migratable_failed[tid]);
+    }
+}
+'

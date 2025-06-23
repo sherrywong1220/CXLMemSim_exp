@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "never" | tee /sys/kernel/mm/transparent_hugepage/enabled
+echo "never" | tee /sys/kernel/mm/transparent_hugepage/defrag
+
+echo 0 | sudo tee /proc/sys/kernel/numa_balancing
+echo 0 | sudo tee /sys/kernel/mm/numa/demotion_enabled
