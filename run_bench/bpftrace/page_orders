@@ -1,0 +1,19 @@
+sudo bpftrace -e '
+kprobe:__thp_vma_allowable_orders
+{
+  @vm_flags[tid] = arg1;
+  @tva_flags[tid] = arg2;
+  @orders[tid] = arg3;
+  printf("CALL: vm_flags=0x%lx, tva_flags=0x%lx\n", arg1, arg2);
+  printf("      orders=0x%lx\n", arg3);
+}
+
+kretprobe:__thp_vma_allowable_orders
+{
+  printf("RETURN: vm_flags=0x%lx, tva_flags=0x%lx\n", @vm_flags[tid], @tva_flags[tid]);
+  printf("        orders=0x%lx, retval=0x%lx\n", @orders[tid], retval);
+  delete(@vm_flags[tid]);
+  delete(@tva_flags[tid]);
+  delete(@orders[tid]);
+}
+'

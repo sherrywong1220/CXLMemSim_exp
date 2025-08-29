@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "x${TIERING_VER}" == "xnobalance" || "x${TIERING_VER}" == "xnobalance_thp" ]]; then
+if [[ "${TIERING_VER}" == *"nobalance"* ]]; then
     PINNING="numactl -N 0 --"
 else
     PINNING="numactl -b -N 0 --"

@@ -38,8 +38,8 @@ function func_memtis_setting() {
 	echo "disabled" | tee /sys/kernel/mm/htmm/htmm_cxl_mode
     fi
 
-    echo "always" | tee /sys/kernel/mm/transparent_hugepage/enabled
-    echo "always" | tee /sys/kernel/mm/transparent_hugepage/defrag
+    echo "always" | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+    echo "always" | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
 }
 
 sudo echo 0 > /proc/sys/kernel/numa_balancing

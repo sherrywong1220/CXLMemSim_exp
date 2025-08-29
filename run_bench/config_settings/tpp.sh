@@ -1,11 +1,10 @@
 #!/bin/bash
-echo 1 | sudo tee /sys/kernel/mm/numa/demotion_enabled
+echo "never" | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+echo "never" | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
+
+echo "inherit" | sudo tee /sys/kernel/mm/transparent_hugepage/hugepages-2048kB/enabled
+echo "never" | sudo tee /sys/kernel/mm/transparent_hugepage/hugepages-64kB/enabled
+echo "never" | sudo tee /sys/kernel/mm/transparent_hugepage/hugepages-512kB/enabled
+
 echo 2 | sudo tee /proc/sys/kernel/numa_balancing
-echo 200 | sudo tee /proc/sys/vm/demote_scale_factor
-
-
-# Inherit AutoNUMA configs
-echo 256 | sudo tee /sys/kernel/debug/sched/numa_balancing/scan_size_mb
-echo 1000 | sudo tee /sys/kernel/debug/sched/numa_balancing/scan_delay_ms
-echo 60000 | sudo tee /sys/kernel/debug/sched/numa_balancing/scan_period_max_ms
-echo 1000 | sudo tee /sys/kernel/debug/sched/numa_balancing/scan_period_min_ms
+echo 1 | sudo tee /sys/kernel/mm/numa/demotion_enabled

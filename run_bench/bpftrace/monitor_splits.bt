@@ -1,0 +1,86 @@
+BEGIN {
+  @split_folio_to_list = 0;
+  @split_huge_page_to_list_to_order = 0;
+  @deferred_split_scan = 0;
+  @deferred_split_folio = 0;
+  @split_huge_pmd_locked = 0;
+  @__split_huge_pmd = 0;
+  @split_huge_pmd_address = 0;
+  @can_split_folio = 0;
+  @min_order_for_split = 0;
+  @__folio_unqueue_deferred_split = 0;
+  @split_page_memcg = 0;
+  @try_to_split_thp_page = 0;
+  @move_to_new_folio = 0;
+}
+
+kprobe:split_folio_to_list {
+  @split_folio_to_list++;
+}
+
+kprobe:split_huge_page_to_list_to_order {
+  @split_huge_page_to_list_to_order++;
+}
+
+kprobe:deferred_split_scan {
+  @deferred_split_scan++;
+}
+
+kprobe:deferred_split_folio {
+  @deferred_split_folio++;
+}
+
+
+kprobe:split_huge_pmd_locked {
+  @split_huge_pmd_locked++;
+}
+
+kprobe:__split_huge_pmd {
+  @__split_huge_pmd++;
+}
+
+kprobe:split_huge_pmd_address {
+  @split_huge_pmd_address++;
+}
+
+kprobe:can_split_folio {
+  @can_split_folio++;
+}
+
+kprobe:min_order_for_split {
+  @min_order_for_split++;
+}
+
+kprobe:__folio_unqueue_deferred_split {
+  @__folio_unqueue_deferred_split++;
+}
+
+kprobe:split_page_memcg {
+  @split_page_memcg++;
+}
+
+kprobe:try_to_split_thp_page {
+  @try_to_split_thp_page++;
+}
+
+kprobe:move_to_new_folio {
+  @move_to_new_folio++;
+}
+
+interval:s:5 {
+  printf("\n=== Split Function Statistics ===\n");
+  printf("split_folio_to_list: %d\n", @split_folio_to_list);
+  printf("split_huge_page_to_list_to_order: %d\n", @split_huge_page_to_list_to_order);
+  printf("deferred_split_scan: %d\n", @deferred_split_scan);
+  printf("deferred_split_folio: %d\n", @deferred_split_folio);
+  printf("split_huge_pmd_locked: %d\n", @split_huge_pmd_locked);
+  printf("__split_huge_pmd: %d\n", @__split_huge_pmd);
+  printf("split_huge_pmd_address: %d\n", @split_huge_pmd_address);
+  printf("can_split_folio: %d\n", @can_split_folio);
+  printf("min_order_for_split: %d\n", @min_order_for_split);
+  printf("__folio_unqueue_deferred_split: %d\n", @__folio_unqueue_deferred_split);
+  printf("split_page_memcg: %d\n", @split_page_memcg);
+  printf("try_to_split_thp_page: %d\n", @try_to_split_thp_page);
+  printf("move_to_new_folio: %d\n", @move_to_new_folio);
+  printf("================================\n");
+}

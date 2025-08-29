@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Todo: change DIR
-export DIR=/home/dongl/run_bench
+export DIR=/home/sherry/projects/eBPF_mem_tiering/run_bench
 
 function func_cache_flush() {
     echo 3 | sudo tee /proc/sys/vm/drop_caches
@@ -35,10 +35,13 @@ function func_prepare() {
 	    exit -1
 	fi
 
-	if [[ -e ${DIR}/bench_cmds/${BENCH_NAME}.sh ]]; then
-	    source ${DIR}/bench_cmds/${BENCH_NAME}.sh
-	else
-	    echo "ERROR: ${BENCH_NAME}.sh does not exist."
+	if [[ ! -e ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh ]]; then
+	    echo "ERROR: ${BENCH_NAME}/prepare.sh does not exist."
+	    exit -1
+	fi
+
+	if [[ ! -e ${DIR}/bench_cmds/${BENCH_NAME}/post.sh ]]; then
+	    echo "ERROR: ${BENCH_NAME}/post.sh does not exist."
 	    exit -1
 	fi
 
@@ -48,6 +51,8 @@ function func_prepare() {
 	    echo "ERROR: ${MEM_POLICY}.sh does not exist."
 	    exit -1
 	fi
+
+	sleep 5
 }
 
 function func_usage() {
@@ -148,7 +153,8 @@ function func_main() {
     mkdir -p ${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}
     export LOG_DIR=${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}
 
-	cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/before_vmstat.log
+	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/before_vmstat.log
+	cat /proc/vmstat > ${LOG_DIR}/before_vmstat.log
     func_cache_flush
     sleep 2
 	
@@ -156,13 +162,16 @@ function func_main() {
     ${DIR}/scripts/vmstat.sh ${LOG_DIR}/vmstat &
 	${DIR}/scripts/rss.sh ${LOG_DIR} &
 
+	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
 	CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${PINNING} ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
 	echo ${CMD}
 	eval ${CMD}
+	source ${DIR}/bench_cmds/${BENCH_NAME}/post.sh
 
     sudo killall -9 vmstat.sh
 	sudo killall -9 rss.sh
-	cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/after_vmstat.log
+	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/after_vmstat.log
+	cat /proc/vmstat > ${LOG_DIR}/after_vmstat.log
     sleep 2
 
     if [[ "x${BENCH_NAME}" == "xbtree" ]]; then

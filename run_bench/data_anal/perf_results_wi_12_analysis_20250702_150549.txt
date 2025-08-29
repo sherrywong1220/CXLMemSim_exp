@@ -1,0 +1,529 @@
+================================================================================
+PERFORMANCE RESULTS ANALYSIS
+================================================================================
+Analysis Date: 2025-07-02 15:05:49
+Source File: perf_results_wi_12.csv
+Dataset Shape: (92, 16)
+
+
+============================================================
+BASIC DATASET INFORMATION
+============================================================
+Dataset shape: (92, 16)
+Number of rows: 92
+Number of columns: 16
+
+Column names:
+   1. workload
+   2. tiering
+   3. mem_policy
+   4. execution_time
+   5. throughput
+   6. rss
+   7. pgpromote_success
+   8. numa_pte_updates
+   9. numa_huge_pte_updates
+  10. numa_hint_faults
+  11. pgmigrate_success
+  12. numa_pages_migrated
+  13. thp_migration_success
+  14. thp_fault_alloc
+  15. numa_local
+  16. numa_other
+
+Data types:
+workload                  object
+tiering                   object
+mem_policy                object
+execution_time           float64
+throughput               float64
+rss                      float64
+pgpromote_success          int64
+numa_pte_updates           int64
+numa_huge_pte_updates      int64
+numa_hint_faults           int64
+pgmigrate_success          int64
+numa_pages_migrated        int64
+thp_migration_success      int64
+thp_fault_alloc            int64
+numa_local                 int64
+numa_other                 int64
+dtype: object
+
+Missing values:
+No missing values found
+
+
+============================================================
+SUMMARY STATISTICS
+============================================================
+Numerical columns summary:
+       execution_time  throughput   rss  pgpromote_success  ...  thp_migration_success  thp_fault_alloc  numa_local  numa_other
+count           92.00       92.00 92.00              92.00  ...                  92.00            92.00       92.00       92.00
+mean           284.59   456896.56 14.28         1694546.11  ...                1659.57          7299.25  2884216.98  3905806.15
+std            143.65   851277.51 16.83         3092791.59  ...                4574.62         11408.63  3774255.55  4177979.07
+min             51.64       25.46 -0.10               0.00  ...                   0.00             0.00    52243.00     7206.00
+25%            207.71       47.98  3.85               0.00  ...                   0.00             0.00   237139.00    54579.00
+50%            290.75     2267.20  8.30             260.00  ...                   0.00             0.00  1536728.00  2755858.50
+75%            320.53   842142.72 17.50         1670421.00  ...                   0.00         11255.00  3671286.75  6420145.25
+max            845.86  3499316.55 74.40        12903019.00  ...               24686.00         38106.00 19502885.00 13822074.00
+
+[8 rows x 13 columns]
+
+Categorical columns (3):
+
+workload:
+  Unique values: 23
+  Most common values:
+    bc-urand: 4
+    bc-web: 4
+    bfs-urand: 4
+    bfs-web: 4
+    cc-urand: 4
+
+tiering:
+  Unique values: 4
+  Most common values:
+    nobalance: 23
+    nobalance_thp: 23
+    autonuma_tiering_thp: 23
+    autonuma_tiering: 23
+
+mem_policy:
+  Unique values: 1
+  Most common values:
+    cpu0.weightedinterleave0_2.12: 92
+
+
+============================================================
+WORKLOAD ANALYSIS
+============================================================
+Workload distribution:
+workload
+bc-urand                 4
+bc-web                   4
+bfs-urand                4
+bfs-web                  4
+cc-urand                 4
+cc-web                   4
+pr-urand                 4
+pr-web                   4
+NPB-BT.D                 4
+NPB-CG.D                 4
+NPB-FT.C                 4
+NPB-LU.D                 4
+NPB-MG.D                 4
+NPB-SP.D                 4
+faster_uniform_ycsb_a    4
+faster_uniform_ycsb_b    4
+faster_uniform_ycsb_c    4
+faster_uniform_ycsb_f    4
+faster_ycsb_a            4
+faster_ycsb_f            4
+tpch_9                   4
+tpch_20                  4
+tpch_21                  4
+Name: count, dtype: int64
+
+Execution time by workload:
+                       count   mean    std    min    max
+workload                                                
+NPB-BT.D                   4 721.82 124.36 580.35 845.86
+NPB-CG.D                   4 266.24  49.47 213.33 313.34
+NPB-FT.C                   4 330.87 130.04 201.57 449.56
+NPB-LU.D                   4 468.57 128.85 335.15 583.71
+NPB-MG.D                   4 181.76  86.41  98.93 259.14
+NPB-SP.D                   4 413.58 149.02 270.49 548.31
+bc-urand                   4 290.30  96.94 173.22 392.74
+bc-web                     4 302.33  44.11 251.38 349.93
+bfs-urand                  4 199.84  20.61 176.44 222.42
+bfs-web                    4 204.72  15.61 185.55 223.33
+cc-urand                   4 172.36  25.05 139.56 199.48
+cc-web                     4 242.67  53.33 185.27 305.28
+faster_uniform_ycsb_a      4 317.50   3.30 314.31 320.52
+faster_uniform_ycsb_b      4 317.53   3.31 314.30 320.55
+faster_uniform_ycsb_c      4 317.52   3.32 314.32 320.60
+faster_uniform_ycsb_f      4 317.77   3.29 314.59 320.83
+faster_ycsb_a              4 317.77   3.31 314.55 320.84
+faster_ycsb_f              4 317.78   3.30 314.58 320.81
+pr-urand                   4 267.13  88.05 167.24 347.25
+pr-web                     4 213.72   6.34 207.19 221.12
+tpch_20                    4  86.32   0.18  86.20  86.58
+tpch_21                    4  53.92   1.82  51.64  56.00
+tpch_9                     4 223.62   2.89 220.58 226.29
+
+Throughput by workload:
+                       count       mean        std        min        max
+workload                                                                
+NPB-BT.D                   4   15271.01    2961.08   12461.41   18818.07
+NPB-CG.D                   4    2324.07     634.56    1761.11    3000.75
+NPB-FT.C                   4   10739.87    4840.03    6525.17   16066.83
+NPB-LU.D                   4   17202.76    5882.84   12088.01   23479.24
+NPB-MG.D                   4   10839.19    6139.85    5533.73   17200.96
+NPB-SP.D                   4    9241.58    4591.22    5257.70   14095.56
+bc-urand                   4      37.98      14.43      25.46      57.73
+bc-web                     4      33.62       5.01      28.58      39.78
+bfs-urand                  4      50.45       5.25      44.96      56.68
+bfs-web                    4      49.06       3.77      44.78      53.89
+cc-urand                   4      59.01       9.16      50.13      71.65
+cc-web                     4      42.75       9.43      32.76      53.98
+faster_uniform_ycsb_a      4 1448151.12  633647.45  871735.98 2217114.59
+faster_uniform_ycsb_b      4 1956539.66  871623.39 1170409.87 3055834.53
+faster_uniform_ycsb_c      4 2201363.73 1023515.45 1280470.82 3499316.55
+faster_uniform_ycsb_f      4 1921199.87  559890.23 1374326.65 2675519.35
+faster_ycsb_a              4 1920781.22  561914.53 1371686.54 2679500.94
+faster_ycsb_f              4  994259.93  155080.97  832278.30 1198044.44
+pr-urand                   4      41.02      14.68      28.80      59.79
+pr-web                     4      46.82       1.38      45.22      48.26
+tpch_20                    4     115.85       0.24     115.50     116.01
+tpch_21                    4     185.62       6.31     178.57     193.65
+tpch_9                     4      44.73       0.58      44.19      45.34
+
+RSS by workload:
+                       count  mean   std   min   max
+workload                                            
+NPB-BT.D                   4 35.45 41.05 -0.10 71.00
+NPB-CG.D                   4 12.23  8.15  0.00 16.30
+NPB-FT.C                   4 29.98 20.05 -0.10 40.00
+NPB-LU.D                   4 28.70 33.26 -0.10 57.50
+NPB-MG.D                   4 19.77 13.25 -0.10 26.40
+NPB-SP.D                   4 37.15 43.01 -0.10 74.40
+bc-urand                   4 13.85  8.67  1.60 20.00
+bc-web                     4 12.42  7.75  0.80 16.30
+bfs-urand                  4 15.23  4.75  8.10 17.60
+bfs-web                    4 13.18  4.25  6.80 15.40
+cc-urand                   4 17.50  0.00 17.50 17.50
+cc-web                     4 15.28  0.05 15.20 15.30
+faster_uniform_ycsb_a      4  8.30  0.00  8.30  8.30
+faster_uniform_ycsb_b      4  8.30  0.00  8.30  8.30
+faster_uniform_ycsb_c      4  8.30  0.00  8.30  8.30
+faster_uniform_ycsb_f      4  8.30  0.00  8.30  8.30
+faster_ycsb_a              4  8.30  0.00  8.30  8.30
+faster_ycsb_f              4  8.30  0.00  8.30  8.30
+pr-urand                   4 13.50  9.00 -0.00 18.00
+pr-web                     4 12.10  6.80  1.90 15.50
+tpch_20                    4  0.00  0.00  0.00  0.00
+tpch_21                    4  2.25  2.60 -0.00  4.50
+tpch_9                     4  0.12  0.19  0.00  0.40
+
+
+============================================================
+CROSS ANALYSIS: WORKLOAD vs TIERING
+============================================================
+Execution time (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                         656.90                580.35     845.86         804.18
+NPB-CG.D                         235.18                213.33     313.34         303.11
+NPB-FT.C                         236.51                201.57     449.56         435.85
+NPB-LU.D                         381.31                335.15     583.71         574.10
+NPB-MG.D                         115.44                 98.93     259.14         253.54
+NPB-SP.D                         299.53                270.49     535.99         548.31
+bc-urand                         253.55                173.22     392.74         341.67
+bc-web                           281.97                251.38     349.93         326.03
+bfs-urand                        189.86                176.44     222.42         210.65
+bfs-web                          202.12                185.55     223.33         207.88
+cc-urand                         180.42                139.56     199.48         169.98
+cc-web                           214.52                185.27     305.28         265.61
+faster_uniform_ycsb_a            320.52                314.31     320.16         315.01
+faster_uniform_ycsb_b            320.55                314.30     320.21         315.06
+faster_uniform_ycsb_c            320.60                314.32     320.16         315.01
+faster_uniform_ycsb_f            320.83                314.59     320.39         315.28
+faster_ycsb_a                    320.84                314.55     320.41         315.29
+faster_ycsb_f                    320.81                314.58     320.45         315.29
+pr-urand                         219.28                167.24     347.25         334.76
+pr-web                           216.66                207.19     221.12         209.91
+tpch_20                           86.58                 86.20      86.23          86.26
+tpch_21                           53.57                 51.64      56.00          54.47
+tpch_9                           221.72                220.58     226.29         225.89
+
+Throughput (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                       16569.09              18818.07   12461.41       13235.47
+NPB-CG.D                        2729.10               3000.75    1761.11        1805.30
+NPB-FT.C                       13612.95              16066.83    6525.17        6754.53
+NPB-LU.D                       20957.44              23479.24   12088.01       12286.35
+NPB-MG.D                       14996.95              17200.96    5533.73        5625.13
+NPB-SP.D                       12229.01              14095.56    5384.04        5257.70
+bc-urand                          39.44                 57.73      25.46          29.27
+bc-web                            35.46                 39.78      28.58          30.67
+bfs-urand                         52.67                 56.68      44.96          47.47
+bfs-web                           49.48                 53.89      44.78          48.10
+cc-urand                          55.43                 71.65      50.13          58.83
+cc-web                            46.62                 53.98      32.76          37.65
+faster_uniform_ycsb_a        1714113.50            2217114.59  871735.98      989640.43
+faster_uniform_ycsb_b        2249232.39            3055834.53 1170409.87     1350681.84
+faster_uniform_ycsb_c        2531938.42            3499316.55 1280470.82     1493729.12
+faster_uniform_ycsb_f        1976922.72            2675519.35 1374326.65     1658030.76
+faster_ycsb_a                1971068.50            2679500.94 1371686.54     1660868.91
+faster_ycsb_f                1015253.63            1198044.44  832278.30      931463.35
+pr-urand                          45.60                 59.79      28.80          29.87
+pr-web                            46.16                 48.26      45.22          47.64
+tpch_20                          115.50                116.01     115.97         115.93
+tpch_21                          186.67                193.65     178.57         183.59
+tpch_9                            45.10                 45.34      44.19          44.27
+
+Throughput Performance Improvement (%):
+THP improvement on AutoNUMA | THP improvement on nobalance
+--------------------------------------------------------------------------------
+NPB-BT.D                13.57%     6.21%
+NPB-CG.D                 9.95%     2.51%
+NPB-FT.C                18.03%     3.52%
+NPB-LU.D                12.03%     1.64%
+NPB-MG.D                14.70%     1.65%
+NPB-SP.D                15.26%    -2.35%
+bc-urand                46.37%    14.96%
+bc-web                  12.18%     7.31%
+bfs-urand                7.61%     5.58%
+bfs-web                  8.91%     7.41%
+cc-urand                29.26%    17.35%
+cc-web                  15.79%    14.93%
+faster_uniform_ycsb_a    29.34%    13.53%
+faster_uniform_ycsb_b    35.86%    15.40%
+faster_uniform_ycsb_c    38.21%    16.65%
+faster_uniform_ycsb_f    35.34%    20.64%
+faster_ycsb_a           35.94%    21.08%
+faster_ycsb_f           18.00%    11.92%
+pr-urand                31.12%     3.72%
+pr-web                   4.55%     5.35%
+tpch_20                  0.44%    -0.03%
+tpch_21                  3.74%     2.81%
+tpch_9                   0.53%     0.18%
+
+RSS (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                          -0.10                 71.00      -0.10          71.00
+NPB-CG.D                          16.30                 16.30       0.00          16.30
+NPB-FT.C                          40.00                 40.00      -0.10          40.00
+NPB-LU.D                          -0.10                 57.50      -0.10          57.50
+NPB-MG.D                          26.40                 26.40      -0.10          26.40
+NPB-SP.D                          -0.10                 74.40      -0.10          74.40
+bc-urand                          13.80                 20.00       1.60          20.00
+bc-web                             0.80                 16.30      16.30          16.30
+bfs-urand                         17.60                 17.60       8.10          17.60
+bfs-web                            6.80                 15.20      15.40          15.30
+cc-urand                          17.50                 17.50      17.50          17.50
+cc-web                            15.30                 15.30      15.30          15.20
+faster_uniform_ycsb_a              8.30                  8.30       8.30           8.30
+faster_uniform_ycsb_b              8.30                  8.30       8.30           8.30
+faster_uniform_ycsb_c              8.30                  8.30       8.30           8.30
+faster_uniform_ycsb_f              8.30                  8.30       8.30           8.30
+faster_ycsb_a                      8.30                  8.30       8.30           8.30
+faster_ycsb_f                      8.30                  8.30       8.30           8.30
+pr-urand                          18.00                 18.00       0.00          18.00
+pr-web                             1.90                 15.50      15.50          15.50
+tpch_20                            0.00                  0.00       0.00           0.00
+tpch_21                            4.50                  0.00       0.00           4.50
+tpch_9                             0.00                  0.00       0.40           0.10
+
+NUMA pages migrated (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                    12407574.00           12420538.00       0.00           2.00
+NPB-CG.D                     2846573.00            2849516.00       0.00           0.00
+NPB-FT.C                     6998820.00            6998992.00       0.00           0.00
+NPB-LU.D                    10043253.00           10053572.00       0.00           0.00
+NPB-MG.D                     4619161.00            4621378.00       0.00           0.00
+NPB-SP.D                    12903019.00           12642562.00       1.00           0.00
+bc-urand                     3801216.00            3846273.00       0.00           0.00
+bc-web                       1841226.00            1940883.00       0.00           0.00
+bfs-urand                    3110757.00            3130495.00       0.00           0.00
+bfs-web                      1085357.00            1330344.00       0.00           0.00
+cc-urand                     3408330.00            3407566.00       0.00           0.00
+cc-web                       1613490.00            2228097.00       0.00         138.00
+faster_uniform_ycsb_a        1419108.00            1419634.00       0.00           0.00
+faster_uniform_ycsb_b        1419105.00            1418613.00       0.00           0.00
+faster_uniform_ycsb_c        1419092.00            1418615.00       0.00           0.00
+faster_uniform_ycsb_f        1416166.00            1420147.00       0.00           0.00
+faster_ycsb_a                1416025.00            1419135.00       0.00           0.00
+faster_ycsb_f                1414909.00            1420145.00       0.00           0.00
+pr-urand                     3670051.00            3669709.00       0.00           3.00
+pr-web                        592104.00             417144.00       0.00           1.00
+tpch_20                          661.00                520.00       0.00           0.00
+tpch_21                        96765.00              97040.00       0.00           0.00
+tpch_9                         91784.00              93406.00       0.00           0.00
+
+NUMA hint faults (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                    12407604.00              28293.00       0.00           6.00
+NPB-CG.D                     2846695.00               8881.00       0.00           0.00
+NPB-FT.C                     6998823.00              16180.00       0.00           0.00
+NPB-LU.D                    10043298.00              22136.00       0.00           0.00
+NPB-MG.D                     4619177.00               9623.00       0.00           0.00
+NPB-SP.D                    13299055.00              31515.00       2.00           0.00
+bc-urand                     3844385.00               9478.00       0.00           0.00
+bc-web                       1943349.00              10860.00       1.00           0.00
+bfs-urand                    3120182.00              22559.00       0.00           0.00
+bfs-web                      1086447.00               4572.00       0.00           0.00
+cc-urand                     3408406.00              11486.00       0.00           0.00
+cc-web                       1613694.00               7377.00       0.00         142.00
+faster_uniform_ycsb_a        1419110.00               3143.00       0.00           0.00
+faster_uniform_ycsb_b        1419107.00               3143.00       0.00           1.00
+faster_uniform_ycsb_c        1419113.00               3147.00       0.00           1.00
+faster_uniform_ycsb_f        1416167.00               3145.00       0.00           0.00
+faster_ycsb_a                1416026.00               3156.00       0.00           0.00
+faster_ycsb_f                1414931.00               3142.00       0.00           0.00
+pr-urand                     3670174.00              12383.00       0.00           6.00
+pr-web                        592389.00               3903.00       1.00           2.00
+tpch_20                          661.00                520.00       0.00           0.00
+tpch_21                        96767.00              24990.00       0.00           0.00
+tpch_9                         91787.00              20333.00       0.00           0.00
+
+THP migration success (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                           0.00              24251.00       0.00           0.00
+NPB-CG.D                           0.00               5559.00       0.00           0.00
+NPB-FT.C                           0.00              13665.00       0.00           0.00
+NPB-LU.D                           0.00              19631.00       0.00           0.00
+NPB-MG.D                           0.00               9025.00       0.00           0.00
+NPB-SP.D                           0.00              24686.00       0.00           0.00
+bc-urand                           0.00               7510.00       0.00           0.00
+bc-web                             0.00               3781.00       0.00           0.00
+bfs-urand                          0.00               6092.00       0.00           0.00
+bfs-web                            0.00               2595.00       0.00           0.00
+cc-urand                           0.00               6652.00       0.00           0.00
+cc-web                             0.00               4349.00       0.00           0.00
+faster_uniform_ycsb_a              0.00               2772.00       0.00           0.00
+faster_uniform_ycsb_b              0.00               2770.00       0.00           0.00
+faster_uniform_ycsb_c              0.00               2770.00       0.00           0.00
+faster_uniform_ycsb_f              0.00               2773.00       0.00           0.00
+faster_ycsb_a                      0.00               2771.00       0.00           0.00
+faster_ycsb_f                      0.00               2773.00       0.00           0.00
+pr-urand                           0.00               7162.00       0.00           0.00
+pr-web                             0.00                810.00       0.00           0.00
+tpch_20                            0.00                  0.00       0.00           0.00
+tpch_21                            0.00                141.00       0.00           0.00
+tpch_9                             0.00                142.00       0.00           0.00
+
+NUMA local:other ratio (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+NPB-BT.D                           1.51                  4.12       0.52           4.60
+NPB-CG.D                           1.52                  5.76       0.54           6.75
+NPB-FT.C                           1.51                  3.42       0.52           4.54
+NPB-LU.D                           1.51                  3.41       0.52           4.18
+NPB-MG.D                           1.50                  2.69       0.52           4.43
+NPB-SP.D                           1.49                  2.58       0.51           3.25
+bc-urand                           1.03                  0.52       0.52           0.53
+bc-web                             0.66                  0.53       0.51           0.53
+bfs-urand                          0.74                  0.52       0.51           0.52
+bfs-web                            0.60                  0.52       0.51           0.52
+cc-urand                           0.96                  0.52       0.51           0.52
+cc-web                             0.62                  0.52       0.51           0.53
+faster_uniform_ycsb_a              1.54                 13.27       0.57          13.99
+faster_uniform_ycsb_b              1.54                 13.88       0.56          13.20
+faster_uniform_ycsb_c              1.54                 14.24       0.57          13.59
+faster_uniform_ycsb_f              1.54                 13.82       0.57          13.60
+faster_ycsb_a                      1.54                 13.73       0.56          13.60
+faster_ycsb_f                      1.54                 14.15       0.57          13.37
+pr-urand                           1.05                  0.52       0.51           0.53
+pr-web                             0.60                  0.52       0.51           0.52
+tpch_20                            0.52                  0.52       0.52           0.52
+tpch_21                            0.54                  0.52       0.51           0.46
+tpch_9                             0.53                  0.52       0.51           0.52
+
+
+============================================================
+ALL DATA (92 rows)
+============================================================
+             workload              tiering                    mem_policy  execution_time  throughput   rss  pgpromote_success  numa_pte_updates  numa_huge_pte_updates  numa_hint_faults  pgmigrate_success  numa_pages_migrated  thp_migration_success  thp_fault_alloc  numa_local  numa_other
+             bc-urand            nobalance cpu0.weightedinterleave0_2.12          392.74       25.46  1.60                  0                 0                      0                 0                  0                    0                      0                0     3756627     7262346
+             bc-urand        nobalance_thp cpu0.weightedinterleave0_2.12          341.67       29.27 20.00                  0                 0                      0                 0                  0                    0                      0            12540     1596119     2991914
+             bc-urand autonuma_tiering_thp cpu0.weightedinterleave0_2.12          173.22       57.73 20.00            3846273           3846279                   7510              9478            3846273              3846273                   7510            12540     1560938     2990721
+             bc-urand     autonuma_tiering cpu0.weightedinterleave0_2.12          253.55       39.44 13.80            3801216           3801224                      0           3844385            3801216              3801216                      0                0     7507588     7262331
+               bc-web            nobalance cpu0.weightedinterleave0_2.12          349.93       28.58 16.30                  0                 0                      0                 1                  0                    0                      0                0     6286177    12336351
+               bc-web        nobalance_thp cpu0.weightedinterleave0_2.12          326.03       30.67 16.30                  0                 0                      0                 0                  0                    0                      0            28194     1459833     2731016
+               bc-web autonuma_tiering_thp cpu0.weightedinterleave0_2.12          251.38       39.78 16.30            1940883           1946691                   3792             10860            1940883              1940883                   3781            28194     1453840     2732682
+               bc-web     autonuma_tiering cpu0.weightedinterleave0_2.12          281.97       35.46  0.80            1841214           1905148                      0           1943349            1841226              1841226                      0                0     8096507    12336412
+            bfs-urand            nobalance cpu0.weightedinterleave0_2.12          222.42       44.96  8.10                  0                 0                      0                 0                  0                    0                      0                0     6748874    13337236
+            bfs-urand        nobalance_thp cpu0.weightedinterleave0_2.12          210.65       47.47 17.60                  0                 0                      0                 0                  0                    0                      0            30095     1625076     3123297
+            bfs-urand autonuma_tiering_thp cpu0.weightedinterleave0_2.12          176.44       56.68 17.60            3130495           3186760                   6197             22559            3130495              3130495                   6092            30095     1634977     3123351
+            bfs-urand     autonuma_tiering cpu0.weightedinterleave0_2.12          189.86       52.67 17.60            3110746           3257785                      0           3120182            3110757              3110757                      0                0     9840777    13338247
+              bfs-web            nobalance cpu0.weightedinterleave0_2.12          223.33       44.78 15.40                  0                 0                      0                 0                  0                    0                      0                0     5684088    11198145
+              bfs-web        nobalance_thp cpu0.weightedinterleave0_2.12          207.88       48.10 15.30                  0                 0                      0                 0                  0                    0                      0            24691     1471291     2812234
+              bfs-web autonuma_tiering_thp cpu0.weightedinterleave0_2.12          185.55       53.89 15.20            1330344           1371545                   2675              4572            1330344              1330344                   2595            24691     1471982     2815528
+              bfs-web     autonuma_tiering cpu0.weightedinterleave0_2.12          202.12       49.48  6.80            1085346           1361886                      0           1086447            1085357              1085357                      0                0     6744578    11198657
+             cc-urand            nobalance cpu0.weightedinterleave0_2.12          199.48       50.13 17.50                  0                 0                      0                 0                  0                    0                      0                0     3826511     7524934
+             cc-urand        nobalance_thp cpu0.weightedinterleave0_2.12          169.98       58.83 17.50                  0                 0                      0                 0                  0                    0                      0            13295     1554759     2995582
+             cc-urand autonuma_tiering_thp cpu0.weightedinterleave0_2.12          139.56       71.65 17.50            3407555           3407570                   6652             11486            3407566              3407566                   6652            13295     1552900     2995543
+             cc-urand     autonuma_tiering cpu0.weightedinterleave0_2.12          180.42       55.43 17.50            3408320           3408336                      0           3408406            3408330              3408330                      0                0     7227358     7524913
+               cc-web            nobalance cpu0.weightedinterleave0_2.12          305.28       32.76 15.30                  0                 0                      0                 0                  0                    0                      0                0     7002320    13821841
+               cc-web        nobalance_thp cpu0.weightedinterleave0_2.12          265.61       37.65 15.20                  0                 0                      0               142                138                  138                      0            32513     1453785     2742868
+               cc-web autonuma_tiering_thp cpu0.weightedinterleave0_2.12          185.27       53.98 15.30            2228084           2678276                   5228              7377            2228097              2228097                   4349            32514     1435352     2742285
+               cc-web     autonuma_tiering cpu0.weightedinterleave0_2.12          214.52       46.62 15.30            1613490           2678267                      0           1613694            1613490              1613490                      0                0     8593996    13822074
+             pr-urand            nobalance cpu0.weightedinterleave0_2.12          347.25       28.80 -0.00                  0                 0                      0                 0                  0                    0                      0                0     3513402     6824421
+             pr-urand        nobalance_thp cpu0.weightedinterleave0_2.12          334.76       29.87 18.00                  0                 0                      0                 6                  3                    3                      0            11255     1591236     2990104
+             pr-urand autonuma_tiering_thp cpu0.weightedinterleave0_2.12          167.24       59.79 18.00            3669709           3669717                   7162             12383            3669709              3669709                   7162            11255     1561199     2990078
+             pr-urand     autonuma_tiering cpu0.weightedinterleave0_2.12          219.28       45.60 18.00            3670051           3670060                      0           3670174            3670051              3670051                      0                0     7153063     6824397
+               pr-web            nobalance cpu0.weightedinterleave0_2.12          221.12       45.22 15.50                  0                 0                      0                 1                  0                    0                      0                0     3273983     6420141
+               pr-web        nobalance_thp cpu0.weightedinterleave0_2.12          209.91       47.64 15.50                  0                 0                      0                 2                  1                    1                      0            11010     1397456     2668984
+               pr-web autonuma_tiering_thp cpu0.weightedinterleave0_2.12          207.19       48.26 15.50             417131           1673851                   3264              3903             417144               417144                    810            11010     1400339     2668972
+               pr-web     autonuma_tiering cpu0.weightedinterleave0_2.12          216.66       46.16  1.90             592104           1848816                      0            592389             592104               592104                      0                0     3872150     6420158
+             NPB-BT.D            nobalance cpu0.weightedinterleave0_2.12          845.86    12461.41 -0.10                  0                 0                      0                 0                  0                    0                      0                0     6454724    12432258
+             NPB-BT.D        nobalance_thp cpu0.weightedinterleave0_2.12          804.18    13235.47 71.00                  0                 0                      0                 6                  2                    2                      0            36374      243507       52959
+             NPB-BT.D autonuma_tiering_thp cpu0.weightedinterleave0_2.12          580.35    18818.07 71.00           12420537          12420552                  24251             28293           12420538             12420538                  24251            36374      218035       52960
+             NPB-BT.D     autonuma_tiering cpu0.weightedinterleave0_2.12          656.90    16569.09 -0.10           12407574          12407615                      0          12407604           12407574             12407574                      0                0    18814751    12432257
+             NPB-CG.D            nobalance cpu0.weightedinterleave0_2.12          313.34     1761.11  0.00                  0                 0                      0                 0                  0                    0                      0                0     1535120     2857336
+             NPB-CG.D        nobalance_thp cpu0.weightedinterleave0_2.12          303.11     1805.30 16.30                  0                 0                      0                 0                  0                    0                      0             8344       91438       13556
+             NPB-CG.D autonuma_tiering_thp cpu0.weightedinterleave0_2.12          213.33     3000.75 16.30            2849508           2851585                   5563              8881            2849516              2849516                   5559             8344       85937       14923
+             NPB-CG.D     autonuma_tiering cpu0.weightedinterleave0_2.12          235.18     2729.10 16.30            2846573           2851401                      0           2846695            2846573              2846573                      0                0     4346783     2857322
+             NPB-FT.C            nobalance cpu0.weightedinterleave0_2.12          449.56     6525.17 -0.10                  0                 0                      0                 0                  0                    0                      0                0     3642840     7012880
+             NPB-FT.C        nobalance_thp cpu0.weightedinterleave0_2.12          435.85     6754.53 40.00                  0                 0                      0                 0                  0                    0                      0            20497      137353       30239
+             NPB-FT.C autonuma_tiering_thp cpu0.weightedinterleave0_2.12          201.57    16066.83 40.00            6998992           6998995                  13665             16180            6998992              6998992                  13665            20497      103383       30240
+             NPB-FT.C     autonuma_tiering cpu0.weightedinterleave0_2.12          236.51    13612.95 40.00            6998820           6998824                      0           6998823            6998820              6998820                      0                0    10574936     7012879
+             NPB-LU.D            nobalance cpu0.weightedinterleave0_2.12          583.71    12088.01 -0.10                  0                 0                      0                 0                  0                    0                      0                0     5207129    10064839
+             NPB-LU.D        nobalance_thp cpu0.weightedinterleave0_2.12          574.10    12286.35 57.50                  0                 0                      0                 0                  0                    0                      0            29451      175881       42034
+             NPB-LU.D autonuma_tiering_thp cpu0.weightedinterleave0_2.12          335.15    23479.24 57.50           10053572          10053574                  19631             22136           10053572             10053572                  19631            29451      144453       42359
+             NPB-LU.D     autonuma_tiering cpu0.weightedinterleave0_2.12          381.31    20957.44 -0.10           10043253          10043309                      0          10043298           10043253             10043253                      0                0    15185611    10064841
+             NPB-MG.D            nobalance cpu0.weightedinterleave0_2.12          259.14     5533.73 -0.10                  0                 0                      0                 0                  0                    0                      0                0     2396067     4633372
+             NPB-MG.D        nobalance_thp cpu0.weightedinterleave0_2.12          253.54     5625.13 26.40                  0                 0                      0                 0                  0                    0                      0            13544       85870       19393
+             NPB-MG.D autonuma_tiering_thp cpu0.weightedinterleave0_2.12           98.93    17200.96 26.40            4621378           4623786                   9029              9623            4621378              4621378                   9025            13544       52243       19410
+             NPB-MG.D     autonuma_tiering cpu0.weightedinterleave0_2.12          115.44    14996.95 26.40            4619161           4623953                      0           4619177            4619161              4619161                      0                0     6972310     4633381
+             NPB-SP.D            nobalance cpu0.weightedinterleave0_2.12          535.99     5384.04 -0.10                  0                 0                      0                 2                  1                    1                      0                0     6675720    13023461
+             NPB-SP.D        nobalance_thp cpu0.weightedinterleave0_2.12          548.31     5257.70 74.40                  0                 0                      0                 0                  0                    0                      0            38106      177636       54580
+             NPB-SP.D autonuma_tiering_thp cpu0.weightedinterleave0_2.12          270.49    14095.56 74.40           12642562          14283536                  27891             31515           12642562             12642562                  24686            38106      140635       54576
+             NPB-SP.D     autonuma_tiering cpu0.weightedinterleave0_2.12          299.53    12229.01 -0.10           12903019          13301755                      0          13299055           12903019             12903019                      0                0    19502885    13048681
+faster_uniform_ycsb_a            nobalance cpu0.weightedinterleave0_2.12          320.16   871735.98  8.30                  0                 0                      0                 0                  0                    0                      0                0      821869     1454403
+faster_uniform_ycsb_a        nobalance_thp cpu0.weightedinterleave0_2.12          315.01   989640.43  8.30                  0                 0                      0                 0                  0                    0                      0             4241      100959        7217
+faster_uniform_ycsb_a autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.31  2217114.59  8.30            1419550           1449180                   2829              3143            1419634              1419634                   2772             4241       96075        7240
+faster_uniform_ycsb_a     autonuma_tiering cpu0.weightedinterleave0_2.12          320.52  1714113.50  8.30            1419108           1448029                      0           1419110            1419108              1419108                      0                0     2241100     1454402
+faster_uniform_ycsb_b            nobalance cpu0.weightedinterleave0_2.12          320.21  1170409.87  8.30                  0                 0                      0                 0                  0                    0                      0                0      821216     1454394
+faster_uniform_ycsb_b        nobalance_thp cpu0.weightedinterleave0_2.12          315.06  1350681.84  8.30                  0                 0                      0                 1                  0                    0                      0             4241       95385        7226
+faster_uniform_ycsb_b autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.30  3055834.53  8.30            1418534           1447136                   2825              3143            1418613              1418613                   2770             4241      100465        7237
+faster_uniform_ycsb_b     autonuma_tiering cpu0.weightedinterleave0_2.12          320.55  2249232.39  8.30            1419019           1448029                      0           1419107            1419105              1419105                      0                0     2242270     1454419
+faster_uniform_ycsb_c            nobalance cpu0.weightedinterleave0_2.12          320.16  1280470.82  8.30                  0                 0                      0                 0                  0                    0                      0                0      822764     1454416
+faster_uniform_ycsb_c        nobalance_thp cpu0.weightedinterleave0_2.12          315.01  1493729.12  8.30                  0                 0                      0                 1                  0                    0                      0             4241       98179        7227
+faster_uniform_ycsb_c autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.32  3499316.55  8.30            1418615           1447138                   2825              3147            1418615              1418615                   2770             4241      102631        7206
+faster_uniform_ycsb_c     autonuma_tiering cpu0.weightedinterleave0_2.12          320.60  2531938.42  8.30            1419030           1448037                      0           1419113            1419092              1419092                      0                0     2237293     1454407
+faster_uniform_ycsb_f            nobalance cpu0.weightedinterleave0_2.12          320.39  1374326.65  8.30                  0                 0                      0                 0                  0                    0                      0                0      822476     1454422
+faster_uniform_ycsb_f        nobalance_thp cpu0.weightedinterleave0_2.12          315.28  1658030.76  8.30                  0                 0                      0                 0                  0                    0                      0             4241       98387        7234
+faster_uniform_ycsb_f autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.59  2675519.35  8.30            1420144           1449692                   2830              3145            1420147              1420147                   2773             4241       99871        7227
+faster_uniform_ycsb_f     autonuma_tiering cpu0.weightedinterleave0_2.12          320.83  1976922.72  8.30            1416166           1448027                      0           1416167            1416166              1416166                      0                0     2235963     1454414
+        faster_ycsb_a            nobalance cpu0.weightedinterleave0_2.12          320.41  1371686.54  8.30                  0                 0                      0                 0                  0                    0                      0                0      819106     1454407
+        faster_ycsb_a        nobalance_thp cpu0.weightedinterleave0_2.12          315.29  1660868.91  8.30                  0                 0                      0                 0                  0                    0                      0             4241       98357        7230
+        faster_ycsb_a autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.55  2679500.94  8.30            1419029           1447654                   2826              3156            1419135              1419135                   2771             4241       99199        7225
+        faster_ycsb_a     autonuma_tiering cpu0.weightedinterleave0_2.12          320.84  1971068.50  8.30            1416025           1448027                      0           1416026            1416025              1416025                      0                0     2237123     1454412
+        faster_ycsb_f            nobalance cpu0.weightedinterleave0_2.12          320.45   832278.30  8.30                  0                 0                      0                 0                  0                    0                      0                0      822643     1454418
+        faster_ycsb_f        nobalance_thp cpu0.weightedinterleave0_2.12          315.29   931463.35  8.30                  0                 0                      0                 0                  0                    0                      0             4241       96684        7229
+        faster_ycsb_f autonuma_tiering_thp cpu0.weightedinterleave0_2.12          314.58  1198044.44  8.30            1420135           1449177                   2829              3142            1420145              1420145                   2773             4241      102158        7221
+        faster_ycsb_f     autonuma_tiering cpu0.weightedinterleave0_2.12          320.81  1015253.63  8.30            1414801           1448038                      0           1414931            1414909              1414909                      0                0     2234798     1454405
+               tpch_9            nobalance cpu0.weightedinterleave0_2.12          226.29       44.19  0.40                  0                 0                      0                 0                  0                    0                      0                0     2463394     4794820
+               tpch_9        nobalance_thp cpu0.weightedinterleave0_2.12          225.89       44.27  0.10                  0                 0                      0                 0                  0                    0                      0              199     2462713     4726714
+               tpch_9 autonuma_tiering_thp cpu0.weightedinterleave0_2.12          220.58       45.34  0.00              93406             97012                    134             20333              93406                93406                    142              199     2449686     4726718
+               tpch_9     autonuma_tiering cpu0.weightedinterleave0_2.12          221.72       45.10  0.00              91784             92377                      0             91787              91784                91784                      0                0     2556774     4794576
+              tpch_20            nobalance cpu0.weightedinterleave0_2.12           86.23      115.97  0.00                  0                 0                      0                 0                  0                    0                      0                0      930089     1798276
+              tpch_20        nobalance_thp cpu0.weightedinterleave0_2.12           86.26      115.93  0.00                  0                 0                      0                 0                  0                    0                      0                0      932109     1797969
+              tpch_20 autonuma_tiering_thp cpu0.weightedinterleave0_2.12           86.20      116.01  0.00                520               912                      0               520                520                  520                      0                1      934444     1797928
+              tpch_20     autonuma_tiering cpu0.weightedinterleave0_2.12           86.58      115.50  0.00                661              1062                      0               661                661                  661                      0                0      933415     1798353
+              tpch_21            nobalance cpu0.weightedinterleave0_2.12           56.00      178.57 -0.00                  0                 0                      0                 0                  0                    0                      0                0     1445126     2840905
+              tpch_21        nobalance_thp cpu0.weightedinterleave0_2.12           54.47      183.59  4.50                  0                 0                      0                 0                  0                    0                      0              210     1409118     3040043
+              tpch_21 autonuma_tiering_thp cpu0.weightedinterleave0_2.12           51.64      193.65  0.00              97040             97674                    141             24990              97040                97040                    141              211     1431459     2768849
+              tpch_21     autonuma_tiering cpu0.weightedinterleave0_2.12           53.57      186.67  4.50              96765             97347                      0             96767              96765                96765                      0                0     1538336     2840878
+
+================================================================================
+ANALYSIS COMPLETED
+================================================================================

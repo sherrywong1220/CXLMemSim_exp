@@ -1,0 +1,26 @@
+sudo bpftrace -e '
+BEGIN {
+  @pte = 0;
+  @fault = 0;
+  @mmfault = 0;
+}
+
+kprobe:__handle_mm_fault {
+  @mmfault++;
+}
+
+kprobe:do_pte_missing {
+  @pte++;
+}
+
+kprobe:__do_fault {
+  @fault++;
+}
+
+interval:s:5 {
+  printf("=== %d seconds ===\n", nsecs/1000000000);
+  printf("do_pte_missing called %d times\n", @pte);
+  printf("__do_fault called %d times\n", @fault);
+  printf("__handle_mm_fault called %d times\n", @mmfault);
+}
+'

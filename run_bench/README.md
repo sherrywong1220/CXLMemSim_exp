@@ -1,2 +1,3 @@
 
-./run.sh
+bash run.sh
+bash run_hard_dram.sh

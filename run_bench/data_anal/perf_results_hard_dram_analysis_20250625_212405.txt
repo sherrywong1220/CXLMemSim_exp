@@ -1,0 +1,216 @@
+================================================================================
+PERFORMANCE RESULTS ANALYSIS
+================================================================================
+Analysis Date: 2025-06-25 21:24:05
+Source File: perf_results_hard_dram.csv
+Dataset Shape: (16, 16)
+
+
+============================================================
+BASIC DATASET INFORMATION
+============================================================
+Dataset shape: (16, 16)
+Number of rows: 16
+Number of columns: 16
+
+Column names:
+   1. workload
+   2. tiering
+   3. mem_policy
+   4. execution_time
+   5. throughput
+   6. rss
+   7. pgpromote_success
+   8. numa_pte_updates
+   9. numa_huge_pte_updates
+  10. numa_hint_faults
+  11. pgmigrate_success
+  12. numa_pages_migrated
+  13. thp_migration_success
+  14. thp_fault_alloc
+  15. numa_local
+  16. numa_other
+
+Data types:
+workload                  object
+tiering                   object
+mem_policy                object
+execution_time           float64
+throughput               float64
+rss                      float64
+pgpromote_success          int64
+numa_pte_updates           int64
+numa_huge_pte_updates      int64
+numa_hint_faults           int64
+pgmigrate_success          int64
+numa_pages_migrated        int64
+thp_migration_success      int64
+thp_fault_alloc            int64
+numa_local                 int64
+numa_other                 int64
+dtype: object
+
+Missing values:
+No missing values found
+
+
+============================================================
+SUMMARY STATISTICS
+============================================================
+Numerical columns summary:
+       execution_time  throughput   rss  pgpromote_success  ...  thp_migration_success  thp_fault_alloc  numa_local  numa_other
+count           16.00       16.00 16.00              16.00  ...                  16.00            16.00       16.00       16.00
+mean           317.04  1597633.45  3.08          205501.25  ...                 125.81          2121.94  1135317.62   671080.31
+std              2.07   455863.45  2.20          417876.30  ...                 225.49          2191.53  1160864.32   778602.62
+min            315.19   964584.24 -2.30               0.00  ...                   0.00             0.00    98436.00     1744.00
+25%            316.31  1155139.07  2.90               0.00  ...                   0.00             0.00   119774.75     2167.75
+50%            316.90  1620356.40  2.95              83.50  ...                   0.00          2120.50   768274.50   458258.50
+75%            317.07  1979890.47  4.30          114048.00  ...                 115.50          4241.00  2036422.75  1067265.75
+max            324.27  2150517.21  7.70         1470054.00  ...                 534.00          4252.00  3435180.00  2411417.00
+
+[8 rows x 13 columns]
+
+Categorical columns (3):
+
+workload:
+  Unique values: 4
+  Most common values:
+    faster_ycsb_a: 4
+    faster_ycsb_f: 4
+    faster_uniform_ycsb_a: 4
+    faster_uniform_ycsb_f: 4
+
+tiering:
+  Unique values: 4
+  Most common values:
+    nobalance: 4
+    nobalance_thp: 4
+    autonuma_tiering_thp: 4
+    autonuma_tiering: 4
+
+mem_policy:
+  Unique values: 1
+  Most common values:
+    cpu0.firsttouch0_2: 16
+
+
+============================================================
+WORKLOAD ANALYSIS
+============================================================
+Workload distribution:
+workload
+faster_ycsb_a            4
+faster_ycsb_f            4
+faster_uniform_ycsb_a    4
+faster_uniform_ycsb_f    4
+Name: count, dtype: int64
+
+Execution time by workload:
+                       count   mean  std    min    max
+workload                                              
+faster_uniform_ycsb_a      4 316.41 0.83 315.19 317.06
+faster_uniform_ycsb_f      4 316.62 0.93 315.26 317.33
+faster_ycsb_a              4 318.56 3.90 315.52 324.27
+faster_ycsb_f              4 316.55 0.74 315.49 317.10
+
+Throughput by workload:
+                       count       mean       std        min        max
+workload                                                               
+faster_uniform_ycsb_a      4 1355273.94 149472.16 1182766.22 1484051.76
+faster_uniform_ycsb_f      4 1994318.71 190206.93 1756661.04 2150517.21
+faster_ycsb_a              4 2013563.32 159146.18 1836396.66 2149234.36
+faster_ycsb_f              4 1027377.84  53173.13  964584.24 1072257.61
+
+RSS by workload:
+                       count  mean  std   min  max
+workload                                          
+faster_uniform_ycsb_a      4  3.58 0.78  2.90 4.30
+faster_uniform_ycsb_f      4  1.95 2.91 -2.30 4.30
+faster_ycsb_a              4  3.20 3.48 -0.80 7.70
+faster_ycsb_f              4  3.60 0.81  2.80 4.30
+
+
+============================================================
+CROSS ANALYSIS: WORKLOAD vs TIERING
+============================================================
+Execution time (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a            317.06                315.19     316.75         316.64
+faster_uniform_ycsb_f            317.33                315.26     316.99         316.92
+faster_ycsb_a                    317.56                315.52     324.27         316.89
+faster_ycsb_f                    317.10                315.49     317.03         316.57
+
+Throughput (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a        1182766.22            1476454.02 1277823.76     1484051.76
+faster_uniform_ycsb_f        1924732.64            2145363.96 1756661.04     2150517.21
+faster_ycsb_a                1921779.09            2146843.17 1836396.66     2149234.36
+faster_ycsb_f                1001951.16            1070718.35  964584.24     1072257.61
+
+Throughput Performance Improvement (%):
+autonuma_tiering_thp over autonuma_tiering | nobalance_thp over nobalance
+--------------------------------------------------------------------------------
+faster_uniform_ycsb_a    24.83%    16.14%
+faster_uniform_ycsb_f    11.46%    22.42%
+faster_ycsb_a           11.71%    17.04%
+faster_ycsb_f            6.86%    11.16%
+
+RSS (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a              4.30                  2.90       4.20           2.90
+faster_uniform_ycsb_f             -2.30                  2.90       4.30           2.90
+faster_ycsb_a                     -0.80                  3.00       7.70           2.90
+faster_ycsb_f                      4.30                  3.00       4.30           2.80
+
+NUMA pages migrated (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a        1470066.00                167.00       0.00           0.00
+faster_uniform_ycsb_f         696450.00                625.00       0.00           0.00
+faster_ycsb_a                 667151.00               1617.00       5.00           1.00
+faster_ycsb_f                 451426.00                659.00       0.00           0.00
+
+NUMA hint faults (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a        3346410.00               7622.00      90.00           0.00
+faster_uniform_ycsb_f        3048432.00               7502.00    4299.00           0.00
+faster_ycsb_a                2914380.00               7379.00     830.00           2.00
+faster_ycsb_f                2893552.00               7680.00      35.00           1.00
+
+NUMA local:other ratio (mean) by workload and tiering:
+tiering                autonuma_tiering  autonuma_tiering_thp  nobalance  nobalance_thp
+workload                                                                               
+faster_uniform_ycsb_a              1.42                 40.15       1.51          85.06
+faster_uniform_ycsb_f              1.65                 42.40       1.46          71.57
+faster_ycsb_a                      1.61                 36.81       2.08         102.39
+faster_ycsb_f                      1.79                 44.62       1.42          88.77
+
+
+============================================================
+ALL DATA (16 rows)
+============================================================
+             workload              tiering         mem_policy  execution_time  throughput   rss  pgpromote_success  numa_pte_updates  numa_huge_pte_updates  numa_hint_faults  pgmigrate_success  numa_pages_migrated  thp_migration_success  thp_fault_alloc  numa_local  numa_other
+        faster_ycsb_a            nobalance cpu0.firsttouch0_2          324.27  1836396.66  7.70                  0                 0                      0               830                543                    5                      0                0     1903295      913674
+        faster_ycsb_a        nobalance_thp cpu0.firsttouch0_2          316.89  2149234.36  2.90                  0                 0                      0                 2              27892                    1                      0             4252      181235        1770
+        faster_ycsb_a autonuma_tiering_thp cpu0.firsttouch0_2          315.52  2146843.17  3.00               1587           3725832                   7275              7379             279931                 1617                    534             4241      104663        2843
+        faster_ycsb_a     autonuma_tiering cpu0.firsttouch0_2          317.56  1921779.09 -0.80             667159           2975922                      0           2914380            1888810               667151                      0                0     2544080     1583035
+        faster_ycsb_f            nobalance cpu0.firsttouch0_2          317.03   964584.24  4.30                  0                 0                      0                35               1172                    0                      0                0     1380387      969174
+        faster_ycsb_f        nobalance_thp cpu0.firsttouch0_2          316.57  1072257.61  2.80                  0                 0                      0                 1              23594                    0                      0             4248      157478        1774
+        faster_ycsb_f autonuma_tiering_thp cpu0.firsttouch0_2          315.49  1070718.35  3.00                650           3767149                   7357              7680             272264                  659                    519             4241      102582        2299
+        faster_ycsb_f     autonuma_tiering cpu0.firsttouch0_2          317.10  1001951.16  4.30             451431           2979096                      0           2893552            1556993               451426                      0                0     2435806     1361541
+faster_uniform_ycsb_a            nobalance cpu0.firsttouch0_2          316.75  1277823.76  4.20                  0                 0                      0                90                 38                    0                      0                0     1421383      938625
+faster_uniform_ycsb_a        nobalance_thp cpu0.firsttouch0_2          316.64  1484051.76  2.90                  0                 0                      0                 0              19303                    0                      0             4246      150295        1767
+faster_uniform_ycsb_a autonuma_tiering_thp cpu0.firsttouch0_2          315.19  1476454.02  2.90                167           3728501                   7281              7622             260771                  167                    498             4241       98436        2452
+faster_uniform_ycsb_a     autonuma_tiering cpu0.firsttouch0_2          317.06  1182766.22  4.30            1470054           3389893                      0           3346410            3550651              1470066                      0                0     3435180     2411417
+faster_uniform_ycsb_f            nobalance cpu0.firsttouch0_2          316.99  1756661.04  4.30                  0                 0                      0              4299                  0                    0                      0                0     1355314      927609
+faster_uniform_ycsb_f        nobalance_thp cpu0.firsttouch0_2          316.92  2150517.21  2.90                  0                 0                      0                 0              20228                    0                      0             4241      124812        1744
+faster_uniform_ycsb_f autonuma_tiering_thp cpu0.firsttouch0_2          315.26  2145363.96  2.90                518           3730839                   7286              7502             243402                  625                    462             4241      104002        2453
+faster_uniform_ycsb_f     autonuma_tiering cpu0.firsttouch0_2          317.33  1924732.64 -2.30             696454           3112573                      0           3048432            1994562               696450                      0                0     2666134     1615108
+
+================================================================================
+ANALYSIS COMPLETED
+================================================================================

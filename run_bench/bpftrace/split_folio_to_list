@@ -1,0 +1,13 @@
+sudo bpftrace -e '
+BEGIN {
+  @mmfault = 0;
+}
+
+kprobe:split_folio_to_list {
+  @mmfault++;
+}
+
+interval:s:5 {
+  printf("split_folio_to_list called %d times\n", @mmfault);
+}
+'
