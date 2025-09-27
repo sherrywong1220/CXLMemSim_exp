@@ -31,6 +31,8 @@ function func_prepare() {
 	sudo pkill -f numa_chain.sh
 	sudo killall bpftrace 2>/dev/null || true
 	sudo killall perf 2>/dev/null || true
+	sudo killall AMDuProfPcm 2>/dev/null || true
+	sudo killall pcm-memory 2>/dev/null || true
 	
 	DATE=$(date +%Y%m%d%H%M)
 
@@ -174,7 +176,17 @@ function func_main() {
 		# ${DIR}/monitor/perf_tlb.sh ${LOG_DIR} &
 		# ${DIR}/monitor/perf_ibs_op.sh ${LOG_DIR} &
 		${DIR}/monitor/numa_chain_wrapper.sh ${LOG_DIR} &
-		${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
+		CPU_VENDOR=$(lscpu | grep "Vendor ID" | awk '{print $3}')
+		if [[ "${CPU_VENDOR}" == "AuthenticAMD" ]]; then
+			echo "Detected AMD CPU, starting amduprof monitoring"
+			# ${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
+			${DIR}/monitor/amduprof_msr.sh ${LOG_DIR} &
+		elif [[ "${CPU_VENDOR}" == "GenuineIntel" ]]; then
+			echo "Detected Intel CPU, starting intel_pcm monitoring"
+			${DIR}/monitor/intel_pcm.sh ${LOG_DIR} &
+		else
+			echo "Unknown CPU type: ${CPU_VENDOR}, skipping hardware monitoring"
+		fi
 	fi
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
@@ -210,6 +222,7 @@ function func_main() {
 		sudo killall bpftrace 2>/dev/null || true
 		sudo killall perf 2>/dev/null || true
 		sudo killall AMDuProfPcm 2>/dev/null || true
+		sudo killall pcm-memory 2>/dev/null || true
 	fi
 	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/after_vmstat.log
 	cat /proc/vmstat > ${LOG_DIR}/after_vmstat.log
