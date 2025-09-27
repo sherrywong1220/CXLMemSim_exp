@@ -1,0 +1,7 @@
+venv
+.DS_Store
+*.txt
+*.log
+*.csv
+*.html
+*.png
