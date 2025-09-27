@@ -1,36 +1,7 @@
 # Data Parsing Script
 
-This directory contains scripts for parsing eBPF memory tiering experiment result data with configurable benchmarks and tiering versions through environment variables.
+This directory contains scripts for parsing experiment result data with configurable benchmarks and tiering versions through environment variables.
 
-## File Description
-
-- `parse_results.py`: Main Python parsing script
-- `run_anal.sh`: Shell script to run the analysis with environment variables
-- `README.md`: This documentation file
-
-## Features
-
-The script automatically parses data for configured workloads under different tiering versions:
-
-### Data Types Parsed
-
-1. **Execution Time**: Extract "execution time" field from `output.log`
-2. **Throughput**: Extract throughput based on workload type from `output.log`
-3. **RSS Difference**: Calculate last RSS value minus first RSS value from `rss.log`
-4. **VMStat Metrics**: Calculate differences from `before_vmstat.log` and `after_vmstat.log`, including:
-   - pgpromote_success
-   - numa_pte_updates
-   - numa_huge_pte_updates
-   - numa_hint_faults
-   - pgmigrate_success
-   - pgmigrate_fail
-   - numa_pages_migrated
-   - thp_migration_success (and variants _2 through _9)
-   - thp_fault_alloc (and variants _2 through _9)
-   - thp_migration_split (and variants _2 through _9)
-   - thp_migration_fail (and variants _2 through _9)
-   - numa_local
-   - numa_other
 
 ## Usage
 

@@ -17,7 +17,7 @@ echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo ""
 
-python3 parse_results.py
+../../venv/bin/python3 parse_results.py
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -30,7 +30,7 @@ else
 fi 
 
 echo "Starting performance results analysis..."
-python3 analyze_perf_results.py "$CSV_FILE"
+../../venv/bin/python3 analyze_perf_results.py "$CSV_FILE"
 
 if [ $? -eq 0 ]; then
     echo ""

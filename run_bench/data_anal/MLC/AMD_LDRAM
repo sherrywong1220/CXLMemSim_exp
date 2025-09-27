@@ -1,0 +1,31 @@
+sherry@volcano-eb9d-os:~$ sudo mlc --loaded_latency -c0 -j0 -t32 -k1-32
+Intel(R) Memory Latency Checker - v3.11b
+Command line parameters: --loaded_latency -c0 -j0 -t32 -k1-32
+
+Using buffer size of 100.000MiB/thread for reads and an additional 100.000MiB/thread for writes
+
+Measuring Loaded Latencies for the system
+Using all the threads from each core if Hyper-threading is enabled
+Using Read-only traffic type
+Inject	Latency	Bandwidth
+Delay	(ns)	MB/sec
+==========================
+ 00000	223.18	 293338.4
+ 00002	223.00	 293162.3
+ 00008	221.49	 291840.8
+ 00015	217.89	 290701.0
+ 00050	191.76	 288228.2
+ 00100	181.85	 281401.4
+ 00200	126.08	 157949.6
+ 00300	123.55	 110711.7
+ 00400	127.97	  85029.5
+ 00500	127.32	  69033.4
+ 00700	126.42	  50194.5
+ 01000	127.39	  35679.2
+ 01300	126.24	  27736.0
+ 01700	126.25	  21442.4
+ 02500	124.59	  14811.3
+ 03500	125.42	  10758.3
+ 05000	123.30	   7707.9
+ 09000	124.66	   4517.2
+ 20000	123.25	   2324.0

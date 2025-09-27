@@ -2,10 +2,12 @@
 
 # Todo: change DIR
 export DIR=/home/sherry/projects/eBPF_mem_tiering/run_bench
+export WORKLOAD_DIR=/home/sherry/workloads
 
 function func_cache_flush() {
     echo 3 | sudo tee /proc/sys/vm/drop_caches
     free
+    sleep 5
     return
 }
 
@@ -21,10 +23,14 @@ function func_prepare() {
 	${DIR}/scripts/disable_hyper_threading.sh
 	${DIR}/scripts/disable_cpu_freq_scaling.sh
 	${DIR}/scripts/set_uncore_freq.sh on
+	${DIR}/scripts/enable_pmu_modules.sh
 	# echo 1 > /sys/kernel/debug/tracing/events/migrate/mm_migrate_pages/enable
 	
 	sudo killall -9 vmstat.sh
 	sudo killall -9 rss.sh
+	sudo pkill -f numa_chain.sh
+	sudo killall bpftrace 2>/dev/null || true
+	sudo killall perf 2>/dev/null || true
 	
 	DATE=$(date +%Y%m%d%H%M)
 
@@ -112,8 +118,8 @@ while (( "$#" )); do
 		exit -1
 	    fi
 	    ;;
-	-P|--perf)
-	    CONFIG_PERF=on
+	-MO|--monitor)
+	    CONFIG_MONITOR=on
 	    shift 1
 	    ;;
 	-NS|--nosplit)
@@ -154,22 +160,57 @@ function func_main() {
     export LOG_DIR=${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}
 
 	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/before_vmstat.log
+	numastat -m > ${LOG_DIR}/before_numastat.log
 	cat /proc/vmstat > ${LOG_DIR}/before_vmstat.log
     func_cache_flush
-    sleep 2
 	
 	mkdir -p ${LOG_DIR}/vmstat
     ${DIR}/scripts/vmstat.sh ${LOG_DIR}/vmstat &
 	${DIR}/scripts/rss.sh ${LOG_DIR} &
+	if [[ "x${CONFIG_MONITOR}" == "xon" ]]; then
+		echo "CONFIG_MONITOR is on"
+		# ${DIR}/monitor/numa_migrate.sh ${LOG_DIR} &
+		# ${DIR}/monitor/numa_page.sh ${LOG_DIR} &
+		# ${DIR}/monitor/perf_tlb.sh ${LOG_DIR} &
+		# ${DIR}/monitor/perf_ibs_op.sh ${LOG_DIR} &
+		${DIR}/monitor/numa_chain_wrapper.sh ${LOG_DIR} &
+		${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
+	fi
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
 	CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${PINNING} ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
 	echo ${CMD}
-	eval ${CMD}
+	
+	eval "${CMD} &"
+	WRAPPER_PID=$!
+	echo "WRAPPER_PID: ${WRAPPER_PID}"
+	# wait for the benchmark to start
+	sleep 4
+	
+	BENCH_PID=$(pgrep -f "${BENCH_RUN}" | while read pid; do
+		comm=$(ps -p $pid -o comm= 2>/dev/null)
+		if [[ "$comm" != "bash" && "$comm" != "sh" && "$comm" != "time" && "$comm" != "tee" ]]; then
+			echo $pid
+			break
+		fi
+	done)
+	
+	echo ${BENCH_PID} > ${LOG_DIR}/workload.pid
+	echo "Benchmark PID: ${BENCH_PID} saved to ${LOG_DIR}/workload.pid"
+	wait ${WRAPPER_PID}
+
 	source ${DIR}/bench_cmds/${BENCH_NAME}/post.sh
 
     sudo killall -9 vmstat.sh
 	sudo killall -9 rss.sh
+	if [[ "x${CONFIG_MONITOR}" == "xon" ]]; then
+		echo "CONFIG_MONITOR is on"
+		sleep 2
+		sudo pkill -f numa_chain.sh
+		sudo killall bpftrace 2>/dev/null || true
+		sudo killall perf 2>/dev/null || true
+		sudo killall AMDuProfPcm 2>/dev/null || true
+	fi
 	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/after_vmstat.log
 	cat /proc/vmstat > ${LOG_DIR}/after_vmstat.log
     sleep 2

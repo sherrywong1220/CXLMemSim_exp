@@ -1,0 +1,100 @@
+#!/usr/bin/env bpftrace
+
+/*
+ * Memory Tiering Analysis Script
+ * Focus on NUMA_BALANCING_MEMORY_TIERING functionality
+ */
+
+BEGIN
+{
+    printf("Starting Memory Tiering Analysis...\n");
+    printf("Time     | Hotness Checks | Hot Pages (Rate) | Cold Pages (Rate) | Migration Attempts | Migration Success (Rate) | Migration Failed (Rate)\n");
+    printf("---------|----------------|------------------|-------------------|--------------------|--------------------------|--------------------------\n");
+}
+
+
+/* Track hotness check function */
+kprobe:should_numa_migrate_memory
+{
+    $task = arg0;
+    $folio = arg1; 
+    $src_nid = arg2;
+    $dst_cpu = arg3;
+    
+    @hotness_checks++;
+}
+
+kretprobe:should_numa_migrate_memory
+{
+    $should_migrate = retval;
+    if ($should_migrate) {
+        @hot_page_detected++;
+    } else {
+        @cold_page_detected++;
+    }
+}
+
+/* Track migration execution */
+kprobe:migrate_misplaced_folio
+{
+    $folio = arg0;
+    $vma = arg1;
+    $target_nid = arg2;
+    
+    @migration_attempts++;
+}
+
+kretprobe:migrate_misplaced_folio
+{
+    $result = retval;
+    if ($result == 0) {
+        @migration_success++;
+    } else {
+        @migration_failed++;
+    }
+}
+
+
+/* Print statistics every 5 seconds */
+interval:s:5
+{
+    $hot_rate = @hotness_checks > 0 ? (uint64)@hot_page_detected * 100 / (uint64)@hotness_checks : 0;
+    $cold_rate = @hotness_checks > 0 ? (uint64)@cold_page_detected * 100 / (uint64)@hotness_checks : 0;
+    $success_rate = @migration_attempts > 0 ? (uint64)@migration_success * 100 / (uint64)@migration_attempts : 0;
+    $failed_rate = @migration_attempts > 0 ? (uint64)@migration_failed * 100 / (uint64)@migration_attempts : 0;
+    
+    printf("%s | %14d | %8d (%2d%%) | %9d (%2d%%) | %18d | %15d (%2d%%) | %14d (%2d%%)\n",
+           strftime("%H:%M:%S", nsecs),
+           @hotness_checks,
+           @hot_page_detected, $hot_rate,
+           @cold_page_detected, $cold_rate,
+           @migration_attempts,
+           @migration_success, $success_rate,
+           @migration_failed, $failed_rate);
+}
+
+END
+{
+    printf("\n=== Final Memory Tiering Summary ===\n");
+    
+    if (@hotness_checks > 0) {
+        printf("Hot page detection rate: %d%% (%d/%d)\n", 
+               (uint64)@hot_page_detected * 100 / (uint64)@hotness_checks,
+               @hot_page_detected, @hotness_checks);
+    }
+    
+    if (@migration_attempts > 0) {
+        printf("Migration success rate: %d%% (%d/%d)\n", 
+               (uint64)@migration_success * 100 / (uint64)@migration_attempts,
+               @migration_success, @migration_attempts);
+    }
+    
+    // Clean up maps to avoid duplicate printing
+    clear(@hotness_checks);
+    clear(@hot_page_detected);
+    clear(@cold_page_detected);
+    clear(@migration_attempts);
+    clear(@migration_success);
+    clear(@migration_failed);
+}
+

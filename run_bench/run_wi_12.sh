@@ -5,10 +5,7 @@ MEM_POLICYS="cpu0.weightedinterleave0_2.12"
 
 export OMP_NUM_THREADS=8
 
-# TIERING_VER="autonuma"
-# TIERING_VER="tiering-0.8"
 # TIERING_VER="tpp"
-# TIERING_VER="memtis"
 # TIERING_VER="autonuma_tiering"
 # TIERING_VER="nobalance"
 TIERING_VERS="nobalance nobalance_thp autonuma_tiering_thp autonuma_tiering"

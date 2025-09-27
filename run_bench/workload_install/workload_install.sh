@@ -1,12 +1,27 @@
-# faster
 WORKLOAD_INSTALL_DIR=$(pwd)
-WORKLOAD_DIR=/mnt/nvme01/sherry/workloads
+WORKLOAD_DIR=/home/sherry/workloads
 
-cd ${WORKLOAD_DIR}
-sudo apt update
-sudo apt install libtbb-dev -y
-sudo apt install libaio-dev libaio1 uuid-dev libnuma-dev cmake -y
+# NPB
+cd ${WORKLOAD_DIR}/
+# wget https://www.nas.nasa.gov/assets/npb/NPB3.4.2.tar.gz
+cp ${WORKLOAD_INSTALL_DIR}/NPB/NPB3.4.2.tar.gz ./
+tar -xzf NPB3.4.2.tar.gz
+rm NPB3.4.2.tar.gz
+cd NPB3.4.2/NPB3.4-OMP
+make suite CLASS=B
+make suite CLASS=C
+make suite CLASS=D
 
+# GAP
+cd ${WORKLOAD_DIR}/
+git clone https://github.com/sbeamer/gapbs.git
+cp ${WORKLOAD_INSTALL_DIR}/GAP/bench.diff gapbs/benchmark/bench.mk
+cd gapbs
+make -j8
+make bench-graphs
+
+# faster
+cd ${WORKLOAD_DIR}/
 git clone https://github.com/yuhong-zhong/FASTER.git
 cd FASTER/cc
 mkdir -p build/Release
@@ -15,7 +30,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ../..
 make pmem_benchmark
 
 # redis
-cd ${WORKLOAD_DIR}
+cd ${WORKLOAD_DIR}/
 wget https://github.com/redis/redis/archive/refs/tags/7.2.3.tar.gz
 tar -xzvf 7.2.3.tar.gz
 mv redis-7.2.3 redis
@@ -25,33 +40,126 @@ sudo bash -c "echo 'vm.overcommit_memory=1' >> /etc/sysctl.conf"
 sed -i -e '$a save ""' redis.conf
 
 # memcached
-cd ${WORKLOAD_DIR}
+cd ${WORKLOAD_DIR}/
 sudo apt-get update
 sudo apt-get install memcached -y
 
 # ycsb
-cd ${WORKLOAD_DIR}
+cd ${WORKLOAD_DIR}/
 git clone https://github.com/brianfrankcooper/YCSB.git
 cd YCSB
 mvn -pl site.ycsb:redis-binding -am clean package
 mvn -pl site.ycsb:memcached-binding -am clean package
 
-# NPB
-cd ${WORKLOAD_DIR}
-wget https://www.nas.nasa.gov/assets/npb/NPB3.4.3.tar.gz
-tar -xzf NPB3.4.3.tar.gz
-cd NPB3.4.2/NPB3.4-OMP
-make suite CLASS=B
-make suite CLASS=C
-make suite CLASS=D
+# Silo
+cd ${WORKLOAD_DIR}/
+# git clone https://github.com/stephentu/silo.git
+cp ${WORKLOAD_INSTALL_DIR}/Silo/silo.tar.gz ./
+tar -xzf silo.tar.gz
+rm silo.tar.gz
+cd silo
+# Compile Berkeley DB with GCC 7.5.0 for compatibility
+echo "Compiling Berkeley DB with GCC 7.5.0..."
+mkdir -p berkeleydb_build && cd berkeleydb_build
+# wget https://download.oracle.com/berkeley-db/db-5.3.28.tar.gz
+# tar -xzf db-5.3.28.tar.gz
+cd db-5.3.28
+cd build_unix
+../dist/configure --prefix=${WORKLOAD_DIR}/silo/berkeleydb_install \
+    --enable-cxx --disable-shared --enable-static \
+    CC=$HOME/gcc-7.5.0/bin/gcc \
+    CXX=$HOME/gcc-7.5.0/bin/g++
+make -j20 -s
+make install
+cd ${WORKLOAD_DIR}/silo
+echo "Compiling Silo with GCC 7.5.0 and custom Berkeley DB..."
+LD_LIBRARY_PATH=$HOME/gcc-7.5.0/lib64:$LD_LIBRARY_PATH \
+CC=$HOME/gcc-7.5.0/bin/gcc \
+CXX=$HOME/gcc-7.5.0/bin/g++ \
+MODE=perf make -j32 dbtest
 
-# GAP
-cd ${WORKLOAD_DIR}
-git clone https://github.com/sbeamer/gapbs.git
-cp ${WORKLOAD_INSTALL_DIR}/GAP/bench.diff gapbs/benchmark/bench.mk
-cd gapbs
+
+# tpc-h
+cd ${WORKLOAD_DIR}/
+sudo cp /etc/apt/sources.list /etc/apt/sources.list~
+sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+sudo apt-get update
+sudo apt-get build-dep postgresql -y
+
+sudo apt-get install graphviz libreadline-dev zlib1g-dev pgagent libpq5 libssl-dev libxslt1-dev build-essential python2 python2-dev python3-pip pkg-config gettext -y
+sudo apt-get install -y \
+  libgtk-3-dev libglib2.0-dev libpango1.0-dev libcairo2-dev \
+  libatk1.0-dev libgdk-pixbuf-2.0-dev \
+  libx11-dev libxext-dev libxrender-dev libxrandr-dev libxi-dev \
+  libxinerama-dev libxcursor-dev libsm-dev libice-dev
+# For Ubuntu 24.04, install libwxgtk3.2-dev instead of libwxgtk-media3.0-gtk3-dev
+# sudo apt-get install libwxgtk-media3.0-gtk3-dev -y
+sudo apt-get install libwxgtk3.2-dev -y
+# sudo pip install sphinxcontrib-htmlhelp
+# For Ubuntu 24.04’s PEP 668 protection, to install Python packages system-wide,try apt install python3-xyz, where xyz is the package you are trying to install.
+sudo apt-get install python3-sphinxcontrib.htmlhelp -y
+
+# install wx 3.0
+mkdir -p ${HOME}/src && cd ${HOME}/src
+curl -LO https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.tar.bz2
+tar -xjvf wxWidgets-3.0.5.tar.bz2
+cd wxWidgets-3.0.5
+cd build
+../configure --prefix=/opt/wx-3.0 --with-gtk=3 --enable-unicode
+make -j32
+sudo make install
+
+cd ${WORKLOAD_DIR}/
+wget http://ftp.postgresql.org/pub/source/v9.3.0/postgresql-9.3.0.tar.gz
+tar -zxvf postgresql-9.3.0.tar.gz
+rm postgresql-9.3.0.tar.gz
+cd postgresql-9.3.0/
+CFLAGS="-fno-omit-frame-pointer -rdynamic -O2" ./configure --prefix=/usr/local --enable-debug
+make -j32
+sudo make install
+
+cd ${WORKLOAD_DIR}/
+git clone https://github.com/pgadmin-org/pgadmin3.git
+cd pgadmin3
+./bootstrap
+export PATH=/opt/wx-3.0/bin:$PATH
+export LD_LIBRARY_PATH=/opt/wx-3.0/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/opt/wx-3.0/lib/pkgconfig:$PKG_CONFIG_PATH
+export WX_CONFIG=/opt/wx-3.0/bin/wx-config   
+CXXFLAGS="-Wno-narrowing" WX_CONFIG=/opt/wx-3.0/bin/wx-config ./configure --with-wx=/opt/wx-3.0 --with-wx-version=3.0 --prefix=/usr --with-openssl=no
+sudo sed -i "s|protected:||" /opt/wx-3.0/include/wx-3.0/wx/unix/stdpaths.h
+sed -i "s/extensions = \[\]/extensions = ['sphinxcontrib.htmlhelp']/" docs/en_US/conf.py
+cd docs/en_US && make -f Makefile.sphinx SPHINXBUILD=/usr/bin/sphinx-build htmlhelp
+cd ${WORKLOAD_DIR}/pgadmin3
+make -j32
+sudo make install
+
+cd ${WORKLOAD_DIR}/
+git clone https://github.com/yuhong-zhong/pg-tpch.git
+cd pg-tpch
+./tpch_prepare
+cp ${WORKLOAD_INSTALL_DIR}/tpch/tpch-postgresql.conf $HOME/pgdata10GB/postgresql.conf
+chmod 600 $HOME/pgdata10GB/postgresql.conf
+
+# Liblinear
+cd ${WORKLOAD_DIR}/
+wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/multicore-liblinear/liblinear-multicore-2.47.zip
+unzip liblinear-multicore-2.47.zip
+cd liblinear-multicore-2.47
 make -j8
-make bench-graphs
+mkdir -p datasets
+cd datasets
+wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/kddb.bz2
+bunzip2 kddb.bz2
+wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/avazu-site.tr.bz2
+bunzip2 avazu-site.tr.bz2
+
+# Intel MLC
+cd $HOME
+wget https://downloadmirror.intel.com/834254/mlc_v3.11b.tgz
+tar -xzvf mlc_v3.11b.tgz
+rm mlc_v3.11b.tgz
+sudo mv Linux/mlc /usr/local/bin/mlc
 
 # DLRM
 # install Intel vtune
@@ -125,51 +233,3 @@ USE_NATIVE_ARCH=1 CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" conda run --no-capture-o
 echo "DLRM-SETUP: FINISHED BUILDING IPEX"
 
 conda deactivate dlrm_cpu
-
-# Liblinear
-cd ${WORKLOAD_DIR}
-wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/multicore-liblinear/liblinear-multicore-2.47.zip
-unzip liblinear-multicore-2.47.zip
-cd liblinear-multicore-2.47
-make -j8
-mkdir -p datasets
-cd datasets
-wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/kddb.bz2
-bunzip2 kddb.bz2
-wget https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/binary/avazu-site.tr.bz2
-bunzip2 avazu-site.tr.bz2
-
-
-# tpc-h
-cd ${WORKLOAD_DIR}
-
-sudo cp /etc/apt/sources.list /etc/apt/sources.list~
-sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
-sudo apt-get update
-sudo apt-get build-dep postgresql -y
-
-sudo apt-get install graphviz libreadline-dev zlib1g-dev pgagent libpq5 libssl-dev libxslt1-dev build-essential python2 python2-dev python3-pip -y
-sudo apt-get install libwxgtk-media3.0-gtk3-dev -y
-sudo pip install sphinxcontrib-htmlhelp
-
-cd ${WORKLOAD_DIR}
-wget http://ftp.postgresql.org/pub/source/v9.3.0/postgresql-9.3.0.tar.gz
-tar -zxvf postgresql-9.3.0.tar.gz
-cd postgresql-9.3.0/
-CFLAGS="-fno-omit-frame-pointer -rdynamic -O2" ./configure --prefix=/usr/local --enable-debug
-make -j$(grep -c ^processor /proc/cpuinfo)
-sudo make install
-
-cd ${WORKLOAD_DIR}
-git clone https://github.com/pgadmin-org/pgadmin3.git
-cd pgadmin3
-./bootstrap
-CXXFLAGS="-Wno-narrowing" ./configure --prefix=/usr --with-wx-version=3.0 --with-openssl=no
-sudo sed -i "s|protected:||" /usr/include/wx-3.0/wx/unix/stdpaths.h
-make -j$(grep -c ^processor /proc/cpuinfo)
-sudo make install
-
-cd ${WORKLOAD_DIR}
-git clone https://github.com/yuhong-zhong/pg-tpch.git
-cd pg-tpch
-./tpch_prepare

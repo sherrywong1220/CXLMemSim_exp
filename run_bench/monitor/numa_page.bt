@@ -1,0 +1,96 @@
+#!/usr/bin/env bpftrace
+
+/*
+ * NUMA page fault tracing script
+ * Track call counts and execution time of do_numa_page and do_huge_pmd_numa_page
+ */
+
+BEGIN
+{
+    printf("Tracking call counts and execution time of do_numa_page and do_huge_pmd_numa_page...\n");
+    printf("Time     | do_numa_page: calls, avg latency | do_huge_pmd_numa_page: calls, avg latency\n");
+    printf("---------|----------------------------------|----------------------------------------\n");
+}
+
+/* Track do_numa_page function */
+kprobe:do_numa_page
+{
+    @start_numa_page[tid] = nsecs;
+    @numa_page_count++;
+}
+
+kretprobe:do_numa_page
+/@start_numa_page[tid]/
+{
+    $duration = nsecs - @start_numa_page[tid];
+    @numa_page_latency = hist($duration / 1000); // microseconds
+    @numa_page_total_time += $duration;
+    delete(@start_numa_page[tid]);
+}
+
+/* Track do_huge_pmd_numa_page function */
+kprobe:do_huge_pmd_numa_page
+{
+    @start_huge_pmd[tid] = nsecs;
+    @huge_pmd_count++;
+}
+
+kretprobe:do_huge_pmd_numa_page
+/@start_huge_pmd[tid]/
+{
+    $duration = nsecs - @start_huge_pmd[tid];
+    @huge_pmd_latency = hist($duration / 1000); // microseconds
+    @huge_pmd_total_time += $duration;
+    delete(@start_huge_pmd[tid]);
+}
+
+
+/* Print statistics every 5 seconds */
+interval:s:5
+{
+    $avg_numa = @numa_page_count > 0 ? ((uint64)@numa_page_total_time / (uint64)@numa_page_count) / 1000 : 0;
+    $avg_huge = @huge_pmd_count > 0 ? ((uint64)@huge_pmd_total_time / (uint64)@huge_pmd_count) / 1000 : 0;
+    
+    printf("%s | %6d calls, %3d μs avg | %6d calls, %3d μs avg\n",
+           strftime("%H:%M:%S", nsecs),
+           @numa_page_count, $avg_numa,
+           @huge_pmd_count, $avg_huge);
+}
+
+/* Final statistics on Ctrl+C exit */
+END
+{
+    printf("\n=== Final Statistics ===\n");
+    
+    printf("Total call counts:\n");
+    printf("  do_numa_page: %d\n", @numa_page_count);
+    printf("  do_huge_pmd_numa_page: %d\n", @huge_pmd_count);
+    
+    if (@numa_page_count > 0) {
+        printf("  do_numa_page total time: %d milliseconds\n", @numa_page_total_time / 1000000);
+        printf("  do_numa_page average latency: %d microseconds\n", 
+               ((uint64)@numa_page_total_time / (uint64)@numa_page_count) / 1000);
+    }
+    
+    if (@huge_pmd_count > 0) {
+        printf("  do_huge_pmd_numa_page total time: %d milliseconds\n", @huge_pmd_total_time / 1000000);
+        printf("  do_huge_pmd_numa_page average latency: %d microseconds\n", 
+               ((uint64)@huge_pmd_total_time / (uint64)@huge_pmd_count) / 1000);
+    }
+    
+    printf("\ndo_numa_page latency distribution (microseconds):\n");
+    print(@numa_page_latency);
+    
+    printf("\ndo_huge_pmd_numa_page latency distribution (microseconds):\n");
+    print(@huge_pmd_latency);
+    
+    // clear
+    clear(@numa_page_count);
+    clear(@huge_pmd_count);
+    clear(@numa_page_total_time);
+    clear(@huge_pmd_total_time);
+    clear(@numa_page_latency);
+    clear(@huge_pmd_latency);
+    clear(@start_numa_page);
+    clear(@start_huge_pmd);
+}

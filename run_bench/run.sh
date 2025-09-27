@@ -6,11 +6,9 @@ MEM_POLICYS="cpu0.weightedinterleave0_2"
 export OMP_NUM_THREADS=8
 
 
-# TIERING_VERS="autonuma"
-# TIERING_VERS="tiering-0.8"
-# TIERING_VERS="tpp"
-# TIERING_VERS="memtis"
-# TIERING_VERS="autonuma_tiering"
+# TIERING_VER="tpp"
+# TIERING_VER="autonuma_tiering"
+# TIERING_VER="nobalance"
 TIERING_VERS="nobalance nobalance_thp autonuma_tiering_thp autonuma_tiering"
 
 LOCAL_DRAM_SIZE="80G"

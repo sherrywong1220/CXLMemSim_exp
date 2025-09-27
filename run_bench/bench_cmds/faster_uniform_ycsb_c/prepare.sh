@@ -1,4 +1,4 @@
-BIN_DIR=/mnt/nvme01/sherry/workloads/FASTER/cc/build/Release
+BIN_DIR=${WORKLOAD_DIR}/FASTER/cc/build/Release
 BENCH_RUN="${BIN_DIR}/pmem_benchmark 2 1 1 0 8000000 1000000000000000 0 300"
 
 # Mem size: 8.3GB
