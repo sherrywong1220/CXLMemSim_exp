@@ -34,6 +34,10 @@ def get_config_from_env():
 def load_perf_results(csv_file="perf_results.csv"):
     """Load perf results from CSV file"""
     try:
+        # If csv_file is just a filename, look for it in perf_results directory
+        if not os.path.dirname(csv_file):
+            csv_file = f"perf_results/{csv_file}"
+        
         if not os.path.exists(csv_file):
             print(f"Error: File {csv_file} not found")
             return None
@@ -461,7 +465,10 @@ def save_analysis_to_file(df, csv_file, output_file=None):
         # Generate output filename based on input CSV file
         base_name = os.path.splitext(os.path.basename(csv_file))[0]
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = f"{base_name}_analysis_{timestamp}.txt"
+        output_file = f"perf_results/{base_name}_analysis_{timestamp}.txt"
+        
+        # Create perf_results directory if it doesn't exist
+        os.makedirs("perf_results", exist_ok=True)
     
     print(f"\nSaving analysis to: {output_file}")
     

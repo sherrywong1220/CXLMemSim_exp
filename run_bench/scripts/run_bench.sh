@@ -157,9 +157,10 @@ function func_main() {
 	PERF=""
     fi
 
-    # make directory for results
-    mkdir -p ${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}
-    export LOG_DIR=${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}
+    # make directory for results with timestamp subdirectory
+    TIMESTAMP=$(date +%Y%m%d%H%M)
+    mkdir -p ${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}/${TIMESTAMP}
+    export LOG_DIR=${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}/${TIMESTAMP}
 
 	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/before_vmstat.log
 	numastat -m > ${LOG_DIR}/before_numastat.log
@@ -179,8 +180,8 @@ function func_main() {
 		CPU_VENDOR=$(lscpu | grep "Vendor ID" | awk '{print $3}')
 		if [[ "${CPU_VENDOR}" == "AuthenticAMD" ]]; then
 			echo "Detected AMD CPU, starting amduprof monitoring"
-			# ${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
-			${DIR}/monitor/amduprof_msr.sh ${LOG_DIR} &
+			${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
+			# ${DIR}/monitor/amduprof_msr.sh ${LOG_DIR} &
 		elif [[ "${CPU_VENDOR}" == "GenuineIntel" ]]; then
 			echo "Detected Intel CPU, starting intel_pcm monitoring"
 			${DIR}/monitor/intel_pcm.sh ${LOG_DIR} &
@@ -190,7 +191,11 @@ function func_main() {
 	fi
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
-	CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${PINNING} ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
+	if [[ "x${BENCH_NAME}" == "xMIX" ]]; then
+		CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
+	else
+		CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${PINNING} ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
+	fi
 	echo ${CMD}
 	
 	eval "${CMD} &"

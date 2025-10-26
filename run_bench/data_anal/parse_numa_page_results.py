@@ -10,6 +10,7 @@ import re
 import glob
 import pandas as pd
 from pathlib import Path
+import timestamp_utils
 
 def parse_numa_page_log(numa_page_log_path):
     """解析numa_page.log文件，提取最终统计数据"""
@@ -87,33 +88,43 @@ def get_config_from_env():
     return workloads, tiering_versions, mem_policies, ldram_sizes
 
 def find_numa_page_result_directories(results_base_path):
-    """查找所有包含numa_page.log数据的结果目录"""
+    """查找所有包含numa_page.log数据的结果目录（使用最新的timestamp运行）"""
     config_result = get_config_from_env()
     if config_result[0] is None:
         print("Error: Failed to get configuration from environment variables")
         return []
-    
+
     workloads, tiering_versions, mem_policies, ldram_sizes = config_result
-    
+
     result_dirs = []
-    
+
     for workload in workloads:
         workload_path = os.path.join(results_base_path, workload)
         if not os.path.exists(workload_path):
             continue
-            
+
         for tiering in tiering_versions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
-            
+
             for mem_policy in mem_policies:
                 mem_policy_dirs = glob.glob(os.path.join(tiering_path, mem_policy))
                 for mem_policy_dir in mem_policy_dirs:
                     for ldram_size in ldram_sizes:
-                        mem_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
-                        numa_page_log = os.path.join(mem_dir, "numa_page.log")
-                        
+                        case_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
+                        if not os.path.exists(case_dir):
+                            continue
+
+                        # Get latest timestamp directory for this case
+                        latest_timestamp_dir = timestamp_utils.get_latest_timestamp_dir(case_dir)
+
+                        if latest_timestamp_dir is None:
+                            # No timestamp subdirectories found, skip
+                            continue
+
+                        numa_page_log = os.path.join(latest_timestamp_dir, "numa_page.log")
+
                         # 检查是否存在numa_page.log文件
                         if os.path.exists(numa_page_log):
                             result_dirs.append({
@@ -123,7 +134,7 @@ def find_numa_page_result_directories(results_base_path):
                                 'ldram_size': ldram_size,
                                 'numa_page_log': numa_page_log
                             })
-    
+
     return result_dirs
 
 def create_numa_page_tables(grouped_data):

@@ -24,20 +24,6 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "Monitor result analysis completed!"
     echo "Generated plots saved in monitoring_plots/ directory"
-    
-    # List generated files
-    if [ -d "monitoring_plots" ]; then
-        echo ""
-        echo "Generated files:"
-        ls -la monitoring_plots/*.png 2>/dev/null | awk '{print "  - " $9}' | sed 's|.*/||'
-    fi
-    
-    echo ""
-    echo "Analysis summary:"
-    echo "  - NUMA hint faults rate trends"
-    echo "  - NUMA pages migrated rate trends" 
-    echo "  - TLB miss trends"
-    echo "  - Comparison across different tiering versions"
 else
     echo ""
     echo "Monitor result analysis failed!"

@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import timestamp_utils
 
 def parse_vmstat_file(vmstat_file_path):
     """解析单个vmstat文件，提取时间戳和numa指标"""
@@ -163,34 +164,44 @@ def get_config_from_env():
     return workloads, tiering_versions, mem_policies, ldram_sizes
 
 def find_monitor_result_directories(results_base_path):
-    """查找所有包含监控数据的结果目录"""
+    """查找所有包含监控数据的结果目录（使用最新的timestamp运行）"""
     config_result = get_config_from_env()
     if config_result[0] is None:
         print("Error: Failed to get configuration from environment variables")
         return []
-    
+
     workloads, tiering_versions, mem_policies, ldram_sizes = config_result
-    
+
     result_dirs = []
-    
+
     for workload in workloads:
         workload_path = os.path.join(results_base_path, workload)
         if not os.path.exists(workload_path):
             continue
-            
+
         for tiering in tiering_versions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
-            
+
             for mem_policy in mem_policies:
                 mem_policy_dirs = glob.glob(os.path.join(tiering_path, mem_policy))
                 for mem_policy_dir in mem_policy_dirs:
                     for ldram_size in ldram_sizes:
-                        mem_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
-                        vmstat_dir = os.path.join(mem_dir, "vmstat")
-                        tlb_log = os.path.join(mem_dir, "perf_tlb.log")
-                        
+                        case_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
+                        if not os.path.exists(case_dir):
+                            continue
+
+                        # Get latest timestamp directory for this case
+                        latest_timestamp_dir = timestamp_utils.get_latest_timestamp_dir(case_dir)
+
+                        if latest_timestamp_dir is None:
+                            # No timestamp subdirectories found, skip
+                            continue
+
+                        vmstat_dir = os.path.join(latest_timestamp_dir, "vmstat")
+                        tlb_log = os.path.join(latest_timestamp_dir, "perf_tlb.log")
+
                         # 检查是否存在监控数据
                         if os.path.exists(vmstat_dir) and os.path.exists(tlb_log):
                             result_dirs.append({
@@ -201,7 +212,7 @@ def find_monitor_result_directories(results_base_path):
                                 'vmstat_dir': vmstat_dir,
                                 'tlb_log': tlb_log
                             })
-    
+
     return result_dirs
 
 def calculate_rate_metrics(time_series_data):

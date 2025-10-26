@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import timestamp_utils
 
 def parse_pcm_memory_csv(csv_file_path):
     """Parse PCM memory CSV file and extract time series data"""
@@ -146,33 +147,43 @@ def get_config_from_env():
     return workloads, tiering_versions, mem_policies, ldram_sizes
 
 def find_pcm_result_directories(results_base_path):
-    """Find all result directories containing PCM memory data"""
+    """Find all result directories containing PCM memory data (使用最新的timestamp运行)"""
     config_result = get_config_from_env()
     if config_result[0] is None:
         print("Error: Failed to get configuration from environment variables")
         return []
-    
+
     workloads, tiering_versions, mem_policies, ldram_sizes = config_result
-    
+
     result_dirs = []
-    
+
     for workload in workloads:
         workload_path = os.path.join(results_base_path, workload)
         if not os.path.exists(workload_path):
             continue
-            
+
         for tiering in tiering_versions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
-            
+
             for mem_policy in mem_policies:
                 mem_policy_dirs = glob.glob(os.path.join(tiering_path, mem_policy))
                 for mem_policy_dir in mem_policy_dirs:
                     for ldram_size in ldram_sizes:
-                        mem_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
-                        pcm_csv = os.path.join(mem_dir, "pcm_memory.csv")
-                        
+                        case_dir = os.path.join(mem_policy_dir, f"{ldram_size}")
+                        if not os.path.exists(case_dir):
+                            continue
+
+                        # Get latest timestamp directory for this case
+                        latest_timestamp_dir = timestamp_utils.get_latest_timestamp_dir(case_dir)
+
+                        if latest_timestamp_dir is None:
+                            # No timestamp subdirectories found, skip
+                            continue
+
+                        pcm_csv = os.path.join(latest_timestamp_dir, "pcm_memory.csv")
+
                         # Check if PCM data exists
                         if os.path.exists(pcm_csv):
                             result_dirs.append({
@@ -182,7 +193,7 @@ def find_pcm_result_directories(results_base_path):
                                 'ldram_size': ldram_size,
                                 'pcm_csv': pcm_csv
                             })
-    
+
     return result_dirs
 
 def plot_memory_traffic_trends(workload, mem_policy, tiering_data):

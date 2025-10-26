@@ -1,0 +1,30 @@
+(base) sherry@optane03:~$ sudo mlc --loaded_latency -c0 -j1 -t16 -k1-16 -W5
+Intel(R) Memory Latency Checker - v3.11b
+Command line parameters: --loaded_latency -c0 -j1 -t16 -k1-16 -W5
+
+Using buffer size of 100.000MiB/thread for reads and an additional 100.000MiB/thread for writes
+
+Measuring Loaded Latencies for the system
+Using all the threads from each core if Hyper-threading is enabled
+Inject	Latency	Bandwidth
+Delay	(ns)	MB/sec
+==========================
+ 00000	516.95	  39639.5
+ 00002	515.97	  39498.2
+ 00008	515.74	  39583.6
+ 00015	516.33	  39633.8
+ 00050	522.81	  39799.7
+ 00100	523.08	  39484.4
+ 00200	225.49	  40219.6
+ 00300	173.36	  27599.7
+ 00400	159.97	  21054.0
+ 00500	154.73	  17048.7
+ 00700	150.00	  12402.5
+ 01000	147.18	   8871.0
+ 01300	145.88	   6957.7
+ 01700	144.07	   5443.9
+ 02500	142.94	   3857.4
+ 03500	142.46	   2888.8
+ 05000	141.07	   2163.4
+ 09000	140.09	   1407.8
+ 20000	139.88	    885.6

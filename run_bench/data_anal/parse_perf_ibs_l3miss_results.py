@@ -39,14 +39,31 @@ def parse_perf_ibs_log(perf_ibs_log_path, workload_pid_path):
         import subprocess
         try:
             result = subprocess.run([
-                'sudo', 'perf', 'script', '-i', perf_ibs_log_path
+                'sudo', 'perf', 'script', '-i', perf_ibs_log_path, 
+                '-F', 'comm,pid,time,event,addr,data_src,ip,sym'
             ], capture_output=True, text=True, timeout=300)
             
             if result.returncode != 0:
                 print(f"Error running perf script: {result.stderr}")
                 return None
                 
-            perf_output = result.stdout
+            # 过滤包含OP LOAD或OP STORE的行
+            perf_lines = []
+            for line in result.stdout.split('\n'):
+                # 先过滤PID，再过滤OP LOAD/STORE
+                # 新格式: comm pid time: event: addr data_src ip sym
+                pid_match = re.search(r'^\s*\S+\s+(\d+)\s+[\d.]+:', line)
+                if not pid_match:
+                    continue
+                    
+                line_pid = pid_match.group(1)
+                if line_pid != target_pid:
+                    continue
+                    
+                if 'OP LOAD' in line.upper() or 'OP STORE' in line.upper():
+                    perf_lines.append(line)
+            
+            perf_output = '\n'.join(perf_lines)
         except subprocess.TimeoutExpired:
             print(f"Timeout running perf script for {perf_ibs_log_path}")
             return None
@@ -57,32 +74,45 @@ def parse_perf_ibs_log(perf_ibs_log_path, workload_pid_path):
         # 解析IBS数据
         page_hits = defaultdict(int)
         instruction_addrs = defaultdict(int)
-        target_pid_samples = 0
+        processed_samples = 0
         
         for line in perf_output.split('\n'):
             line = line.strip()
-            if not line or target_pid not in line:
+            if not line:
                 continue
-                
-            target_pid_samples += 1
             
-            # Parse IBS output: "comm pid [cpu] timestamp: period event: addr function"
-            parts = line.split()
-            if len(parts) >= 6:
-                # Find address (usually after colon)
-                for i, part in enumerate(parts):
-                    if ':' in part and i < len(parts) - 1:
-                        addr_part = parts[i + 1]
-                        if re.match(r'^[0-9a-fA-F]+$', addr_part):
-                            addr = int(addr_part, 16)
-                            
-                            # 4KB page alignment
-                            page = addr & ~0xFFF
-                            page_hits[page] += 1
-                            
-                            # Record instruction address (for hot code analysis)
-                            instruction_addrs[addr] += 1
-                            break
+            # Parse IBS output with data_src format:
+            # "comm pid time: event: addr data_src ip sym"
+            # 示例: cg.D.x  136176 25834.186889: ibs_op//:     14c6ebb16670       229080142 |OP LOAD|LVL L1 hit|SNP N/A|TLB L1 hit|LCK N/A|BLK  N/A      561fc2ec4c66 makea_
+            # 其中 14c6ebb16670 是 addr，561fc2ec4c66 是 ip
+            
+            # 提取内存访问地址和指令地址
+            # 格式: ibs_op//: addr data_src ip sym
+            # 注意：addr 可能是 0，需要处理
+            match = re.search(r'ibs_op//:\s+([0-9a-fA-F]+)\s+.*\s+([0-9a-fA-F]+)\s+\S+\s*$', line)
+            if match:
+                addr = int(match.group(1), 16)  # 内存访问地址（十六进制）
+                ip = int(match.group(2), 16)    # 指令地址（十六进制）
+                
+                # 跳过 addr=0 的情况（无效的内存访问）
+                if addr == 0:
+                    continue
+                
+                # 只筛选用户空间地址，过滤内核地址
+                # 用户空间地址通常 < 0x800000000000 (在64位系统中)
+                # 内核地址通常 >= 0xffff800000000000
+                if addr >= 0x800000000000:
+                    continue
+                
+                # 只对有效的样本进行计数
+                processed_samples += 1
+                
+                # 4KB page alignment for memory access
+                page = addr & ~0xFFF
+                page_hits[page] += 1
+                
+                # Record instruction address (for hot code analysis)
+                instruction_addrs[ip] += 1
         
         if not page_hits:
             print(f"Warning: No IBS data found for PID {target_pid} in {perf_ibs_log_path}")
@@ -135,7 +165,7 @@ def parse_perf_ibs_log(perf_ibs_log_path, workload_pid_path):
         # 存储解析的数据
         data = {
             'target_pid': target_pid,
-            'total_samples': target_pid_samples,
+            'total_samples': processed_samples,
             'unique_pages': unique_pages,
             'total_hits': total_hits,
             'avg_accesses_per_page': avg_accesses_per_page,
@@ -246,13 +276,13 @@ def find_perf_ibs_result_directories(results_base_path):
                                 'perf_ibs_log': perf_ibs_log,
                                 'workload_pid': workload_pid
                             })
-    
+
     return result_dirs
 
 def generate_access_distribution_histograms(grouped_data):
     """生成base page和huge page访问分布直方图"""
     
-    output_dir = "perf_ibs_tables"
+    output_dir = "perf_ibs_l3miss_tables"
     plots_dir = os.path.join(output_dir, "histograms")
     os.makedirs(plots_dir, exist_ok=True)
     
@@ -432,7 +462,7 @@ def generate_access_distribution_histograms(grouped_data):
 def create_perf_ibs_tables(grouped_data):
     """为每个工作负载和内存策略组合创建表格"""
     
-    output_dir = "perf_ibs_tables"
+    output_dir = "perf_ibs_l3miss_tables"
     os.makedirs(output_dir, exist_ok=True)
     
     for (workload, mem_policy), tiering_data in grouped_data.items():
@@ -522,48 +552,75 @@ import re
 from collections import defaultdict
 import sys
 
-def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, tiering_version, output_dir="perf_ibs_tables"):
+def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, tiering_version, output_dir="perf_ibs_l3miss_tables"):
     pid = workload_pid
     try:
         # Get IBS data for target PID
         result = subprocess.run([
-            'sudo', 'perf', 'script', '-i', perf_ibs_log
+            'sudo', 'perf', 'script', '-i', perf_ibs_log,
+            '-F', 'comm,pid,time,event,addr,data_src,ip,sym'
         ], capture_output=True, text=True)
         
-        page_hits = defaultdict(int)
-        va_to_pa = {}
-        instruction_addrs = defaultdict(int)
-        
-        target_pid_samples = 0
-        
+        # 先过滤PID，再过滤OP LOAD/STORE
+        perf_lines = []
         for line in result.stdout.split('\n'):
-            line = line.strip()
-            if not line or pid not in line:
+            # 先过滤PID
+            # 新格式: comm pid time: event: addr data_src ip sym
+            pid_match = re.search(r'^\s*\S+\s+(\d+)\s+[\d.]+:', line)
+            if not pid_match:
                 continue
                 
-            target_pid_samples += 1
-            
-            # Parse IBS output: "comm pid [cpu] timestamp: period event: addr function"
-            parts = line.split()
-            if len(parts) >= 6:
-                # Find address (usually after colon)
-                for i, part in enumerate(parts):
-                    if ':' in part and i < len(parts) - 1:
-                        addr_part = parts[i + 1]
-                        if re.match(r'^[0-9a-fA-F]+$', addr_part):
-                            addr = int(addr_part, 16)
-                            
-                            # 4KB page alignment
-                            page = addr & ~0xFFF
-                            page_hits[page] += 1
-                            
-                            # Record instruction address (for hot code analysis)
-                            instruction_addrs[addr] += 1
-                            break
+            line_pid = pid_match.group(1)
+            if line_pid != pid:
+                continue
+                
+            # 再过滤OP LOAD或OP STORE
+            if 'OP LOAD' in line.upper() or 'OP STORE' in line.upper():
+                perf_lines.append(line)
         
-        if not page_hits:
+        if not perf_lines:
             print(f"❌ No IBS data found for PID {pid}")
             return
+        
+        page_hits = defaultdict(int)
+        instruction_addrs = defaultdict(int)
+        processed_samples = 0
+        
+        for line in perf_lines:
+            line = line.strip()
+            
+            # Parse IBS output with data_src format:
+            # "comm pid time: event: addr data_src ip sym"
+            # 示例: cg.D.x  136176 25834.186889: ibs_op//:     14c6ebb16670       229080142 |OP LOAD|LVL L1 hit|SNP N/A|TLB L1 hit|LCK N/A|BLK  N/A      561fc2ec4c66 makea_
+            # 其中 14c6ebb16670 是 addr，561fc2ec4c66 是 ip
+            
+            # 提取内存访问地址和指令地址
+            # 格式: ibs_op//: addr data_src ip sym
+            # 注意：addr 可能是 0，需要处理
+            match = re.search(r'ibs_op//:\s+([0-9a-fA-F]+)\s+.*\s+([0-9a-fA-F]+)\s+\S+\s*$', line)
+            if match:
+                addr = int(match.group(1), 16)  # 内存访问地址（十六进制）
+                ip = int(match.group(2), 16)    # 指令地址（十六进制）
+                
+                # 跳过 addr=0 的情况（无效的内存访问）
+                if addr == 0:
+                    continue
+                
+                # 只筛选用户空间地址，过滤内核地址
+                # 用户空间地址通常 < 0x800000000000 (在64位系统中)
+                # 内核地址通常 >= 0xffff800000000000
+                if addr >= 0x800000000000:
+                    continue
+                
+                # 只对有效的样本进行计数
+                processed_samples += 1
+                
+                # 4KB page alignment for memory access
+                page = addr & ~0xFFF
+                page_hits[page] += 1
+                
+                # Record instruction address (for hot code analysis)
+                instruction_addrs[ip] += 1
         
         # 创建输出目录
         os.makedirs(output_dir, exist_ok=True)
@@ -592,7 +649,7 @@ def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, tier
                 f.write(f"0x{vpage:x}\t{hits}\t\t{offset_in_thp}/512\t{percentage:.1f}%\n")
             
             f.write(f"\n📊 Statistics:\n")
-            f.write(f"- Total IBS Samples: {target_pid_samples:,}\n")
+            f.write(f"- Total IBS Samples: {processed_samples:,}\n")
             f.write(f"- Unique Pages: {len(page_hits):,}\n")
             f.write(f"- Total Accesses: {total_hits:,}\n")
             f.write(f"- Average Accesses per Page: {total_hits / len(page_hits):.1f}\n")
@@ -861,8 +918,8 @@ def main():
     generate_access_distribution_histograms(grouped_data)
     
     print("\n所有Perf IBS统计表格和直方图已生成完成!")
-    print("CSV表格文件保存在 perf_ibs_tables/ 目录中")
-    print("直方图文件保存在 perf_ibs_tables/histograms/ 目录中")
+    print("CSV表格文件保存在 perf_ibs_l3miss_tables/ 目录中")
+    print("直方图文件保存在 perf_ibs_l3miss_tables/histograms/ 目录中")
 
 if __name__ == "__main__":
     main()

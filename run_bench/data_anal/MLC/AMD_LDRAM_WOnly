@@ -1,0 +1,30 @@
+sherry@amd-cxl:~$ sudo mlc --loaded_latency -c0 -j0 -t32 -k1-32 -W6
+Intel(R) Memory Latency Checker - v3.11b
+Command line parameters: --loaded_latency -c0 -j0 -t32 -k1-32 -W6
+
+Using buffer size of 100.000MiB/thread for reads and an additional 100.000MiB/thread for writes
+
+Measuring Loaded Latencies for the system
+Using all the threads from each core if Hyper-threading is enabled
+Inject	Latency	Bandwidth
+Delay	(ns)	MB/sec
+==========================
+ 00000	443.06	 251144.3
+ 00002	443.88	 251107.9
+ 00008	380.90	 247723.4
+ 00015	373.45	 246805.1
+ 00050	187.35	 184824.0
+ 00100	151.61	  91897.0
+ 00200	132.42	  31133.5
+ 00300	129.22	  23347.4
+ 00400	129.25	  18742.0
+ 00500	129.61	  15677.7
+ 00700	130.49	  11863.2
+ 01000	127.56	   8761.7
+ 01300	127.85	   6985.6
+ 01700	128.17	   5540.1
+ 02500	127.07	   3988.6
+ 03500	125.18	   3028.5
+ 05000	127.24	   2278.7
+ 09000	123.15	   1515.0
+ 20000	123.12	    970.3
