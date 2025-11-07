@@ -55,6 +55,7 @@ function func_prepare() {
 
     if [[ -e ${DIR}/mem_policies/${MEM_POLICY}.sh ]]; then
 	    source ${DIR}/mem_policies/${MEM_POLICY}.sh
+	    export PINNING
 	else
 	    echo "ERROR: ${MEM_POLICY}.sh does not exist."
 	    exit -1
@@ -176,7 +177,7 @@ function func_main() {
 		# ${DIR}/monitor/numa_page.sh ${LOG_DIR} &
 		# ${DIR}/monitor/perf_tlb.sh ${LOG_DIR} &
 		# ${DIR}/monitor/perf_ibs_op.sh ${LOG_DIR} &
-		${DIR}/monitor/numa_chain_wrapper.sh ${LOG_DIR} &
+		# ${DIR}/monitor/numa_chain_wrapper.sh ${LOG_DIR} &
 		CPU_VENDOR=$(lscpu | grep "Vendor ID" | awk '{print $3}')
 		if [[ "${CPU_VENDOR}" == "AuthenticAMD" ]]; then
 			echo "Detected AMD CPU, starting amduprof monitoring"
@@ -191,6 +192,7 @@ function func_main() {
 	fi
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
+	export APP_RUN BENCH_RUN
 	if [[ "x${BENCH_NAME}" == "xMIX" ]]; then
 		CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
 	else

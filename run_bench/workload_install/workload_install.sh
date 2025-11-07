@@ -19,6 +19,7 @@ cp ${WORKLOAD_INSTALL_DIR}/GAP/bench.diff gapbs/benchmark/bench.mk
 cd gapbs
 make -j8
 make bench-graphs
+make gen-twitter
 
 # faster
 cd ${WORKLOAD_DIR}/

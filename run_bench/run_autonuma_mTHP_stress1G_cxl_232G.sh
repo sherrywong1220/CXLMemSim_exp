@@ -23,7 +23,7 @@ free
 sleep 5
 CURRENT_TIME=$(date "+%Y.%m.%d-%H.%M.%S")
 MEMSTRESS_LOG="./log/memstress_${CURRENT_TIME}.log"
-../tools/memstress -c 62-63 -n 2 -s 512 -b 1024 -w 5 >> "$MEMSTRESS_LOG" 2>&1 &
+../tools/memstress/memstress -n 2 -b 1024 -t 4 -c 48 -r 8:2 >> "$MEMSTRESS_LOG" 2>&1 &
 MEMSTRESS_PID=$!
 echo "memstress PID: $MEMSTRESS_PID"
 sleep 10
@@ -36,11 +36,9 @@ do
     do
         for MP in ${MEM_POLICYS};
         do
-    	# ./scripts/run_bench.sh -B ${BENCH} -M ${MP} -V ${TIERING_VER} -LM ${LOCAL_DRAM_SIZE} >> ./log/${TIERING_VER}_${CURRENT_TIME}.log
-
         CURRENT_TIME=$(date "+%Y.%m.%d-%H.%M.%S")
         echo "current_time ${CURRENT_TIME}"
-        ./scripts/run_bench.sh -B ${BENCH} -M ${MP} -V ${TIERING_VER} -LM ${LOCAL_DRAM_SIZE} >> ./log/${TIERING_VER}_${CURRENT_TIME}.log 2>&1
+        ./scripts/run_bench.sh -B ${BENCH} -M ${MP} -V ${TIERING_VER} -LM ${LOCAL_DRAM_SIZE} -MO >> ./log/${TIERING_VER}_${CURRENT_TIME}.log 2>&1
         sleep 15
         done
     done

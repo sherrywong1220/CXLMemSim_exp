@@ -48,13 +48,20 @@ def extract_throughput(output_log_path, workload):
                 return round(1.0 / execution_time * 10000, 2)
             return None
         
+        # For workloads ending with -2c, -3c, -4c: throughput = 1/execution_time
+        elif workload.endswith('-2c') or workload.endswith('-3c') or workload.endswith('-4c'):
+            execution_time = extract_execution_time(output_log_path, workload)
+            if execution_time and execution_time > 0:
+                return round(1.0 / execution_time * 10000, 2)
+            return None
+        
         # For faster workloads: parse "Finished benchmark: X.XX ops/second/thread"
         elif workload.startswith('faster'):
             match = re.search(r'Finished benchmark:\s*(\d+\.?\d*)\s*ops/second/thread', content)
             if match:
                 return float(match.group(1))
             return None
-        
+         
         # For NPB workloads: parse "Mop/s total = X.XX"
         elif workload.startswith('NPB'):
             match = re.search(r'Mop/s total\s*=\s*(\d+\.?\d*)', content)

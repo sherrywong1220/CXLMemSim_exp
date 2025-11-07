@@ -31,20 +31,6 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "AMDuProf CXL analysis completed!"
     echo "Generated plots saved in cxl_plots/ directory"
-    
-    # List generated files
-    if [ -d "cxl_plots" ]; then
-        echo ""
-        echo "Generated files:"
-        ls -la cxl_plots/*.png 2>/dev/null | awk '{print "  - " $9}' | sed 's|.*/||'
-    fi
-    
-    echo ""
-    echo "Analysis summary:"
-    echo "  - CXL Read Memory BW trends for each workload and memory policy"
-    echo "  - CXL Write Memory BW trends for each workload and memory policy" 
-    echo "  - Comparison across different tiering versions"
-    echo "  - Statistical summary of memory traffic patterns"
 else
     echo ""
     echo "AMDuProf CXL analysis failed!"
