@@ -1,0 +1,3 @@
+# MPI hostfile for single-node runs
+# Format: hostname [slots=N]
+localhost

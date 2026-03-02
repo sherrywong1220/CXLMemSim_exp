@@ -4,7 +4,7 @@
 
 # Set environment variables for data analysis
 export DATA_ANAL_BENCHMARKS="bc-urand bc-web bfs-urand bfs-web cc-urand cc-web pr-urand pr-web NPB-BT.D NPB-CG.D NPB-FT.C NPB-LU.D NPB-MG.D NPB-SP.D faster_uniform_ycsb_a faster_uniform_ycsb_b faster_uniform_ycsb_c faster_uniform_ycsb_f faster_ycsb_a faster_ycsb_f tpch_9 tpch_20 tpch_21 silo_ycsb"
-export DATA_ANAL_TIERING_VERS="tpp nobalance tpp_thp nobalance_thp tpp_thp_512K nobalance_thp_512K tpp_thp_64K nobalance_thp_64K"
+export DATA_ANAL_NET_CONFIGS="tpp nobalance tpp_thp nobalance_thp tpp_thp_512K nobalance_thp_512K tpp_thp_64K nobalance_thp_64K"
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2"
 export DATA_ANAL_LDRAM_SIZES="80G"
 export CSV_FILE="tpp_perf_results_ldram80G_wi_11.csv"
@@ -12,7 +12,7 @@ export CSV_FILE="tpp_perf_results_ldram80G_wi_11.csv"
 echo "Starting result data parsing..."
 echo "Environment variables set:"
 echo "  DATA_ANAL_BENCHMARKS: $DATA_ANAL_BENCHMARKS"
-echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
+echo "  DATA_ANAL_NET_CONFIGS: $DATA_ANAL_NET_CONFIGS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo ""
 

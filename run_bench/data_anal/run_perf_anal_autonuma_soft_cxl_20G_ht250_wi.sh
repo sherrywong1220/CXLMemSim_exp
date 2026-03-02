@@ -4,7 +4,7 @@
 
 # Set environment variables for data analysis
 export DATA_ANAL_BENCHMARKS="NPB-FT.C NPB-MG.D NPB-CG.D-2c"
-export DATA_ANAL_TIERING_VERS="autonuma_tiering_thp autonuma_tiering_thp_512K autonuma_tiering_thp_64K autonuma_tiering"
+export DATA_ANAL_NET_CONFIGS="autonuma_tiering_thp autonuma_tiering_thp_512K autonuma_tiering_thp_64K autonuma_tiering"
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2.14 cpu0.weightedinterleave0_2"
 export DATA_ANAL_LDRAM_SIZES="soft_cxl_20G_ht250"
 export CSV_FILE="perf_results_autonuma_soft_cxl_20G_ht250_wi.csv"
@@ -12,7 +12,7 @@ export CSV_FILE="perf_results_autonuma_soft_cxl_20G_ht250_wi.csv"
 echo "Starting result data parsing..."
 echo "Environment variables set:"
 echo "  DATA_ANAL_BENCHMARKS: $DATA_ANAL_BENCHMARKS"
-echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
+echo "  DATA_ANAL_NET_CONFIGS: $DATA_ANAL_NET_CONFIGS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo ""
 

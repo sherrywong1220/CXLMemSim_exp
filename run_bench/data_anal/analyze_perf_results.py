@@ -17,19 +17,19 @@ def get_config_from_env():
         return None, None
     
     # Get tiering versions from environment variable
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set, will use data from CSV")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set, will use data from CSV")
         return None, None
     
     mem_policies = mem_policies_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     
     print(f"Configuration from environment:")
     print(f"  Memory policies: {mem_policies}")
-    print(f"  Tiering versions: {tiering_versions}")
+    print(f"  Tiering versions: {NET_CONFIGsions}")
     
-    return mem_policies, tiering_versions
+    return mem_policies, NET_CONFIGsions
 
 def load_perf_results(csv_file="perf_results.csv"):
     """Load perf results from CSV file"""
@@ -161,7 +161,7 @@ def display_cross_analysis(df):
     print("="*60)
     
     # Get memory policies from environment or data
-    config_mem_policies, config_tiering_versions = get_config_from_env()
+    config_mem_policies, config_NET_CONFIGsions = get_config_from_env()
     if config_mem_policies is not None:
         mem_policies = config_mem_policies
         print(f"Using memory policies from environment: {mem_policies}")
@@ -517,7 +517,7 @@ def main():
     
     # Load configuration from environment
     print("Loading configuration from environment variables...")
-    config_mem_policies, config_tiering_versions = get_config_from_env()
+    config_mem_policies, config_NET_CONFIGsions = get_config_from_env()
     
     # Check command line arguments for CSV file
     csv_file = "perf_results.csv"

@@ -4,14 +4,14 @@
 
 # Set environment variables for Perf IBS data analysis
 export DATA_ANAL_BENCHMARKS="bc-urand bc-web bfs-urand bfs-web cc-urand cc-web pr-urand pr-web NPB-BT.D NPB-CG.D NPB-FT.C NPB-LU.D NPB-MG.D NPB-SP.D silo_ycsb"
-export DATA_ANAL_TIERING_VERS="autonuma_tiering_thp"
+export DATA_ANAL_NET_CONFIGS="autonuma_tiering_thp"
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2"
 export DATA_ANAL_LDRAM_SIZES="cxl_232G_mo_hot"
 
 echo "Starting Perf IBS result data parsing..."
 echo "Environment variables set:"
 echo "  DATA_ANAL_BENCHMARKS: $DATA_ANAL_BENCHMARKS"
-echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
+echo "  DATA_ANAL_NET_CONFIGS: $DATA_ANAL_NET_CONFIGS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo "  DATA_ANAL_LDRAM_SIZES: $DATA_ANAL_LDRAM_SIZES"
 echo ""

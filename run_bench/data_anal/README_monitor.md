@@ -29,7 +29,7 @@
 2. **NUMA Pages Migrated Rate (per second)**: NUMA页面迁移的频率  
 3. **TLB Misses**: TLB缺失次数
 
-每个子图使用不同的图例表示不同的分层版本（TIERING_VERs）。
+每个子图使用不同的图例表示不同的分层版本（NET_CONFIGs）。
 
 ## 使用方法
 
@@ -37,7 +37,7 @@
 
 ```bash
 export DATA_ANAL_BENCHMARKS="NPB-MG.D bc-urand"
-export DATA_ANAL_TIERING_VERS="autonuma_tiering autonuma_tiering_thp nobalance nobalance_thp"
+export DATA_ANAL_NET_CONFIGS="autonuma_tiering autonuma_tiering_thp nobalance nobalance_thp"
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2"
 export DATA_ANAL_LDRAM_SIZES="cxl_232G_mo"
 ```
@@ -62,7 +62,7 @@ python3 parse_monitor_results.py
 ## 环境变量说明
 
 - `DATA_ANAL_BENCHMARKS`: 要分析的工作负载列表（空格分隔）
-- `DATA_ANAL_TIERING_VERS`: 要对比的分层版本列表（空格分隔）
+- `DATA_ANAL_NET_CONFIGS`: 要对比的分层版本列表（空格分隔）
 - `DATA_ANAL_MEM_POLICYS`: 内存策略列表（空格分隔）
 - `DATA_ANAL_LDRAM_SIZES`: LDRAM大小配置列表（空格分隔）
 

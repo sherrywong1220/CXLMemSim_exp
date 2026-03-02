@@ -122,9 +122,9 @@ def get_config_from_env():
         return None, None, None, None
     
     # Get tiering versions
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set")
         return None, None, None, None
     
     # Get memory policies
@@ -140,11 +140,11 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def find_pcm_result_directories(results_base_path):
     """Find all result directories containing PCM memory data (使用最新的timestamp运行)"""
@@ -153,7 +153,7 @@ def find_pcm_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -162,7 +162,7 @@ def find_pcm_result_directories(results_base_path):
         if not os.path.exists(workload_path):
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
@@ -199,7 +199,7 @@ def find_pcm_result_directories(results_base_path):
 def plot_memory_traffic_trends(workload, mem_policy, tiering_data):
     """
     Plot memory traffic trends for specific workload and memory policy
-    tiering_data: {tiering_version: pcm_data}
+    tiering_data: {NET_CONFIGsion: pcm_data}
     """
     fig, axes = plt.subplots(4, 1, figsize=(14, 16))
     fig.suptitle(f'DRAM & PMM Traffic Trends: {workload} with {mem_policy}', fontsize=16, fontweight='bold')
@@ -238,7 +238,7 @@ def plot_memory_traffic_trends(workload, mem_policy, tiering_data):
     
     # Plot data for each tiering version
     color_idx = 0
-    for tiering_version, pcm_data in tiering_data.items():
+    for NET_CONFIGsion, pcm_data in tiering_data.items():
         color = colors[color_idx % len(colors)]
         line_style = line_styles[color_idx % len(line_styles)]
         color_idx += 1
@@ -255,19 +255,19 @@ def plot_memory_traffic_trends(workload, mem_policy, tiering_data):
         
         # Plot DRAM Read
         ax1.plot(times, mem_reads, color=color, linestyle=line_style, 
-                marker='o', markersize=3, label=tiering_version, linewidth=2)
+                marker='o', markersize=3, label=NET_CONFIGsion, linewidth=2)
         
         # Plot DRAM Write
         ax2.plot(times, mem_writes, color=color, linestyle=line_style,
-                marker='s', markersize=3, label=tiering_version, linewidth=2)
+                marker='s', markersize=3, label=NET_CONFIGsion, linewidth=2)
         
         # Plot PMM Read
         ax3.plot(times, pmm_reads, color=color, linestyle=line_style,
-                marker='^', markersize=3, label=tiering_version, linewidth=2)
+                marker='^', markersize=3, label=NET_CONFIGsion, linewidth=2)
         
         # Plot PMM Write
         ax4.plot(times, pmm_writes, color=color, linestyle=line_style,
-                marker='d', markersize=3, label=tiering_version, linewidth=2)
+                marker='d', markersize=3, label=NET_CONFIGsion, linewidth=2)
     
     # Set legends
     ax1.legend(loc='upper right', framealpha=0.9)

@@ -4,14 +4,14 @@
 
 # Set environment variables for AMDuProf CXL data analysis
 export DATA_ANAL_BENCHMARKS="MIX"
-export DATA_ANAL_TIERING_VERS="nobalance_thp"
+export DATA_ANAL_NET_CONFIGS="nobalance_thp"
 export DATA_ANAL_MEM_POLICYS="cpu0.firsttouch0_2"
 export DATA_ANAL_LDRAM_SIZES="cxl_10G_mo_amduprof_cxl_ft21"
 
 echo "Starting AMDuProf CXL data parsing..."
 echo "Environment variables set:"
 echo "  DATA_ANAL_BENCHMARKS: $DATA_ANAL_BENCHMARKS"
-echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
+echo "  DATA_ANAL_NET_CONFIGS: $DATA_ANAL_NET_CONFIGS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo "  DATA_ANAL_LDRAM_SIZES: $DATA_ANAL_LDRAM_SIZES"
 echo ""

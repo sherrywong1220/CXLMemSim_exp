@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Todo: change DIR
-export DIR=/home/sherry/projects/eBPF_mem_tiering/run_bench
-export WORKLOAD_DIR=/home/sherry/workloads
+export DIR=/mnt/nvme01/sherry/CXLMemSim_exp/run_bench
+export WORKLOAD_DIR=/mnt/nvme01/sherry/CXLMemSim_clflush/workloads
 
 function func_cache_flush() {
     echo 3 | sudo tee /proc/sys/vm/drop_caches
@@ -26,9 +26,6 @@ function func_prepare() {
 	${DIR}/scripts/enable_pmu_modules.sh
 	# echo 1 > /sys/kernel/debug/tracing/events/migrate/mm_migrate_pages/enable
 	
-	sudo killall -9 vmstat.sh
-	sudo killall -9 rss.sh
-	sudo pkill -f numa_chain.sh
 	sudo killall bpftrace 2>/dev/null || true
 	sudo killall perf 2>/dev/null || true
 	sudo killall AMDuProfPcm 2>/dev/null || true
@@ -36,10 +33,12 @@ function func_prepare() {
 	
 	DATE=$(date +%Y%m%d%H%M)
 
-    if [[ -e ${DIR}/config_settings/${TIERING_VER}.sh ]]; then
-	    source ${DIR}/config_settings/${TIERING_VER}.sh
+    export PPN=$((NUM_PROCESS / NUM_NODES))
+
+    if [[ -e ${DIR}/config_settings/${NET_CONFIG}.sh ]]; then
+	    source ${DIR}/config_settings/${NET_CONFIG}.sh
 	else
-	    echo "ERROR: ${TIERING_VER}.sh does not exist."
+	    echo "ERROR: ${NET_CONFIG}.sh does not exist."
 	    exit -1
 	fi
 
@@ -53,26 +52,26 @@ function func_prepare() {
 	    exit -1
 	fi
 
-    if [[ -e ${DIR}/mem_policies/${MEM_POLICY}.sh ]]; then
-	    source ${DIR}/mem_policies/${MEM_POLICY}.sh
-	    export PINNING
+    if [[ -e ${DIR}/cc_type/${CC_TYPE}.sh ]]; then
+	    source ${DIR}/cc_type/${CC_TYPE}.sh
 	else
-	    echo "ERROR: ${MEM_POLICY}.sh does not exist."
+	    echo "ERROR: ${CC_TYPE}.sh does not exist."
 	    exit -1
 	fi
-
 	sleep 5
 }
 
 function func_usage() {
     echo
-    echo -e "Usage: $0 [-B benchmark] [-V version] [-M mempolicy] [-LM localmem]..."
+    echo -e "Usage: $0 [-B benchmark] [-V version] [-C usecase] [-T cctype] [-P process] [-N nodes]..."
     echo
     echo "  -B,   --benchmark   [arg]    benchmark name to run. e.g., Graph500, XSBench, etc"
     echo "  -V,   --version     [arg]    version to run. e.g., autonuma, TPP, etc"
-	echo "  -M,   --mempolicy   [arg]    memory policy to run. e.g., cpu1.membind0_1_2, cpu1.membind1_2, etc"
-	echo "  -LM,  --localmem    [arg]    local memory size. e.g., 65G, 105G, etc"
-    echo "        --cxl                  enable cxl mode [default: disabled]"
+	echo "  -C,   --usecase     [arg]    use case to run. e.g., cxl_232G, soft_cxl_20G, etc"
+	echo "  -T,   --cctype      [arg]    CC_TYPE for CXL shim. e.g., nocc, cc_clwb_clflush, cc_clwb_clflushopt, etc"
+	echo "  -P,   --process     [arg]    the number of processes to run."
+	echo "  -N,   --nodes       [arg]    the number of nodes to run. e.g., 1, 2, 4, 8, etc"
+	echo "  -MO,  --monitor         	monitor mode"
     echo "  -?,   --help"
     echo "        --usage"
     echo
@@ -84,6 +83,7 @@ while (( "$#" )); do
 	-B|--benchmark)
 	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
 		BENCH_NAME=( "$2" )
+        export BENCH_NAME
 		shift 2
 	    else
 		echo "Error: Argument for $1 is missing" >&2
@@ -93,7 +93,7 @@ while (( "$#" )); do
 	    ;;
 	-V|--version)
 	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-		TIERING_VER=( "$2" )
+		NET_CONFIG=( "$2" )
 		shift 2
 	    else
 		echo "Error: Argument for $1 is missing" >&2
@@ -101,9 +101,10 @@ while (( "$#" )); do
 		exit -1
 	    fi
 	    ;;
-	-M|--mempolicy)
+	-C|--usecase)
 	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-		MEM_POLICY=( "$2" )
+		USE_CASE=( "$2" )
+		export USE_CASE
 		shift 2
 	    else
 		echo "Error: Argument for $1 is missing" >&2
@@ -111,9 +112,32 @@ while (( "$#" )); do
 		exit -1
 	    fi
 	    ;;
-	-LM|--localmem)
+	-T|--cctype)
 	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-		LOCAL_MEM=( "$2" )
+		CC_TYPE=( "$2" )
+		export CC_TYPE
+		shift 2
+	    else
+		echo "Error: Argument for $1 is missing" >&2
+		func_usage
+		exit -1
+	    fi
+	    ;;
+	-P|--process)
+	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+		NUM_PROCESS=( "$2" )
+        export NUM_PROCESS
+		shift 2
+	    else
+		echo "Error: Argument for $1 is missing" >&2
+		func_usage
+		exit -1
+	    fi
+	    ;;
+	-N|--nodes)
+	    if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+		NUM_NODES=( "$2" )
+		export NUM_NODES
 		shift 2
 	    else
 		echo "Error: Argument for $1 is missing" >&2
@@ -123,18 +147,6 @@ while (( "$#" )); do
 	    ;;
 	-MO|--monitor)
 	    CONFIG_MONITOR=on
-	    shift 1
-	    ;;
-	-NS|--nosplit)
-	    CONFIG_NS=on
-	    shift 1
-	    ;;
-	-NW|--nowarm)
-	    CONFIG_NW=on
-	    shift 1
-	    ;;
-	--cxl)
-	    CONFIG_CXL_MODE=on
 	    shift 1
 	    ;;
 	-H|-?|-h|--help|--usage)
@@ -150,27 +162,14 @@ while (( "$#" )); do
 done
 
 function func_main() {
-    TIME="/usr/bin/time"
-
-    if [[ "x${CONFIG_PERF}" == "xon" ]]; then
-	PERF="./perf stat -e dtlb_store_misses.walk_pending,dtlb_load_misses.walk_pending,dTLB-store-misses,cycle_activity.stalls_total"
-    else
-	PERF=""
-    fi
-
-    # make directory for results with timestamp subdirectory
     TIMESTAMP=$(date +%Y%m%d%H%M)
-    mkdir -p ${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}/${TIMESTAMP}
-    export LOG_DIR=${DIR}/results/${BENCH_NAME}/${TIERING_VER}/${MEM_POLICY}/${LOCAL_MEM}/${TIMESTAMP}
+    export LOG_DIR=${DIR}/results/${BENCH_NAME}/${NET_CONFIG}/${CC_TYPE}/${NUM_PROCESS}/${USE_CASE}/${TIMESTAMP}
+    mkdir -p ${LOG_DIR}
 
-	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/before_vmstat.log
 	numastat -m > ${LOG_DIR}/before_numastat.log
 	cat /proc/vmstat > ${LOG_DIR}/before_vmstat.log
     func_cache_flush
 	
-	mkdir -p ${LOG_DIR}/vmstat
-    ${DIR}/scripts/vmstat.sh ${LOG_DIR}/vmstat &
-	${DIR}/scripts/rss.sh ${LOG_DIR} &
 	if [[ "x${CONFIG_MONITOR}" == "xon" ]]; then
 		echo "CONFIG_MONITOR is on"
 		# ${DIR}/monitor/numa_migrate.sh ${LOG_DIR} &
@@ -182,7 +181,6 @@ function func_main() {
 		if [[ "${CPU_VENDOR}" == "AuthenticAMD" ]]; then
 			echo "Detected AMD CPU, starting amduprof monitoring"
 			${DIR}/monitor/amduprof_cxl.sh ${LOG_DIR} &
-			# ${DIR}/monitor/amduprof_msr.sh ${LOG_DIR} &
 		elif [[ "${CPU_VENDOR}" == "GenuineIntel" ]]; then
 			echo "Detected Intel CPU, starting intel_pcm monitoring"
 			${DIR}/monitor/intel_pcm.sh ${LOG_DIR} &
@@ -193,35 +191,16 @@ function func_main() {
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
 	export APP_RUN BENCH_RUN
-	if [[ "x${BENCH_NAME}" == "xMIX" ]]; then
-		CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
-	else
-		CMD="stdbuf -oL -eL ${TIME} -f 'execution time %e (s)' ${PINNING} ${BENCH_RUN} 2>&1 | tee ${LOG_DIR}/output.log"
-	fi
-	echo ${CMD}
+	CMD="stdbuf -oL -eL ${PINNING} ${BENCH_RUN} 2>&1 | tee -a ${LOG_DIR}/output.log"
+	echo "${CMD}" | tee ${LOG_DIR}/output.log
 	
 	eval "${CMD} &"
 	WRAPPER_PID=$!
 	echo "WRAPPER_PID: ${WRAPPER_PID}"
-	# wait for the benchmark to start
-	sleep 4
-	
-	BENCH_PID=$(pgrep -f "${BENCH_RUN}" | while read pid; do
-		comm=$(ps -p $pid -o comm= 2>/dev/null)
-		if [[ "$comm" != "bash" && "$comm" != "sh" && "$comm" != "time" && "$comm" != "tee" ]]; then
-			echo $pid
-			break
-		fi
-	done)
-	
-	echo ${BENCH_PID} > ${LOG_DIR}/workload.pid
-	echo "Benchmark PID: ${BENCH_PID} saved to ${LOG_DIR}/workload.pid"
 	wait ${WRAPPER_PID}
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/post.sh
 
-    sudo killall -9 vmstat.sh
-	sudo killall -9 rss.sh
 	if [[ "x${CONFIG_MONITOR}" == "xon" ]]; then
 		echo "CONFIG_MONITOR is on"
 		sleep 2
@@ -231,20 +210,8 @@ function func_main() {
 		sudo killall AMDuProfPcm 2>/dev/null || true
 		sudo killall pcm-memory 2>/dev/null || true
 	fi
-	# cat /proc/vmstat | grep -e thp -e htmm -e migrate -e pgpromote -e pgdemote -e numa -e promote > ${LOG_DIR}/after_vmstat.log
 	cat /proc/vmstat > ${LOG_DIR}/after_vmstat.log
     sleep 2
-
-    if [[ "x${BENCH_NAME}" == "xbtree" ]]; then
-	cat ${LOG_DIR}/output.log | grep Throughput \
-	    | awk ' NR%20==0 { print sum ; sum = 0 ; next} { sum+=$3 }' \
-	    > ${LOG_DIR}/throughput.out
-    elif [[ "x${BENCH_NAME}" =~ "xsilo" ]]; then
-	cat ${LOG_DIR}/output.log | grep -e '0 throughput' -e '5 throughput' \
-	    | awk ' { print $4 }' > ${LOG_DIR}/throughput.out
-    fi
-
-	# sudo cat /sys/kernel/debug/tracing/trace > ${LOG_DIR}/trace.txt
 
     sudo dmesg -c > ${LOG_DIR}/dmesg.txt
 	${DIR}/scripts/set_uncore_freq.sh off

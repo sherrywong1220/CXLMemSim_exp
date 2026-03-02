@@ -139,9 +139,9 @@ def get_config_from_env():
         return None, None, None, None
     
     # 获取分层版本
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set")
         return None, None, None, None
     
     # 获取内存策略
@@ -157,11 +157,11 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def find_monitor_result_directories(results_base_path):
     """查找所有包含监控数据的结果目录（使用最新的timestamp运行）"""
@@ -170,7 +170,7 @@ def find_monitor_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -179,7 +179,7 @@ def find_monitor_result_directories(results_base_path):
         if not os.path.exists(workload_path):
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
@@ -247,7 +247,7 @@ def calculate_rate_metrics(time_series_data):
 def plot_monitoring_trends(workload, mem_policy, tiering_data):
     """
     为特定工作负载和内存策略绘制监控趋势图
-    tiering_data: {tiering_version: {'vmstat': vmstat_data, 'tlb': tlb_data}}
+    tiering_data: {NET_CONFIGsion: {'vmstat': vmstat_data, 'tlb': tlb_data}}
     """
     fig, axes = plt.subplots(5, 1, figsize=(14, 20))
     fig.suptitle(f'Monitoring Trends: {workload} with {mem_policy}', fontsize=16, fontweight='bold')
@@ -293,7 +293,7 @@ def plot_monitoring_trends(workload, mem_policy, tiering_data):
     
     # 为每个tiering版本绘制数据
     color_idx = 0
-    for tiering_version, data in tiering_data.items():
+    for NET_CONFIGsion, data in tiering_data.items():
         color = colors[color_idx % len(colors)]
         line_style = line_styles[color_idx % len(line_styles)]
         color_idx += 1
@@ -311,13 +311,13 @@ def plot_monitoring_trends(workload, mem_policy, tiering_data):
                 if any('numa_hint_faults_rate' in entry for entry in rate_data):
                     hint_faults_rates = [entry.get('numa_hint_faults_rate', 0) for entry in rate_data]
                     ax1.plot(times, hint_faults_rates, color=color, linestyle=line_style, 
-                            marker='o', markersize=4, label=tiering_version, linewidth=2)
+                            marker='o', markersize=4, label=NET_CONFIGsion, linewidth=2)
                 
                 # 绘制NUMA pages migrated rate
                 if any('numa_pages_migrated_rate' in entry for entry in rate_data):
                     migrated_rates = [entry.get('numa_pages_migrated_rate', 0) for entry in rate_data]
                     ax2.plot(times, migrated_rates, color=color, linestyle=line_style,
-                            marker='s', markersize=4, label=tiering_version, linewidth=2)
+                            marker='s', markersize=4, label=NET_CONFIGsion, linewidth=2)
                 
                 # 绘制NUMA pages migrated 累加值
                 if vmstat_data and any('numa_pages_migrated' in entry for entry in vmstat_data):
@@ -330,7 +330,7 @@ def plot_monitoring_trends(workload, mem_policy, tiering_data):
                     cumulative_migrated = [entry.get('numa_pages_migrated', 0) - initial_migrated for entry in vmstat_data]
                     
                     ax5.plot(cumulative_times, cumulative_migrated, color=color, linestyle=line_style,
-                            marker='o', markersize=4, label=tiering_version, linewidth=2)
+                            marker='o', markersize=4, label=NET_CONFIGsion, linewidth=2)
         
         # 处理TLB数据
         tlb_data = data.get('tlb', [])
@@ -360,12 +360,12 @@ def plot_monitoring_trends(workload, mem_policy, tiering_data):
             # 绘制数据TLB miss (子图3)
             if data_tlb_misses:
                 ax3.plot(times, data_tlb_misses, color=color, linestyle=line_style,
-                        marker='s', markersize=4, label=tiering_version, linewidth=2)
+                        marker='s', markersize=4, label=NET_CONFIGsion, linewidth=2)
             
             # 绘制总TLB miss (子图4)
             if total_tlb_misses:
                 ax4.plot(times, total_tlb_misses, color=color, linestyle=line_style,
-                        marker='^', markersize=4, label=tiering_version, linewidth=2)
+                        marker='^', markersize=4, label=NET_CONFIGsion, linewidth=2)
     
     # 设置图例
     ax1.legend(loc='upper right', framealpha=0.9)

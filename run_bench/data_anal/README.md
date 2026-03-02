@@ -11,8 +11,8 @@ Environment Variables Configuration in `run_anal.sh`:
 ### DATA_ANAL_BENCHMARKS
 export DATA_ANAL_BENCHMARKS="bc-urand bc-web bfs-urand bfs-web cc-urand cc-web pr-urand pr-web NPB-BT.D NPB-CG.D NPB-FT.C NPB-LU.D NPB-MG.D NPB-SP.D faster_uniform_ycsb_a faster_uniform_ycsb_b faster_uniform_ycsb_c faster_uniform_ycsb_f faster_ycsb_a faster_ycsb_f tpch_9 tpch_20 tpch_21"
 
-### DATA_ANAL_TIERING_VERS
-export DATA_ANAL_TIERING_VERS="nobalance nobalance_thp nobalance_thp_64K nobalance_thp_512K autonuma_tiering autonuma_tiering_thp  autonuma_tiering_thp_64K autonuma_tiering_thp_512K"
+### DATA_ANAL_NET_CONFIGS
+export DATA_ANAL_NET_CONFIGS="nobalance nobalance_thp nobalance_thp_64K nobalance_thp_512K autonuma_tiering autonuma_tiering_thp  autonuma_tiering_thp_64K autonuma_tiering_thp_512K"
 
 ### DATA_ANAL_MEM_POLICYS
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2"
@@ -97,7 +97,7 @@ cpu*.weightedinterleave*/80G/
 The script requires the following environment variables to be set:
 
 - `DATA_ANAL_BENCHMARKS`: Space-separated list of workload names
-- `DATA_ANAL_TIERING_VERS`: Space-separated list of tiering versions
+- `DATA_ANAL_NET_CONFIGS`: Space-separated list of tiering versions
 - `DATA_ANAL_MEM_POLICYS`: Space-separated list of memory policy configurations
 - `DATA_ANAL_LDRAM_SIZES`: Space-separated list of LDRAM size configurations (e.g., "80G 120G 160G")
 - `CSV_FILE`: Output CSV filename

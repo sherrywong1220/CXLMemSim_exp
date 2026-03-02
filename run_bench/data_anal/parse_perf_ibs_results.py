@@ -173,9 +173,9 @@ def get_config_from_env():
         return None, None, None, None
     
     # 获取分层版本
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set")
         return None, None, None, None
     
     # 获取内存策略
@@ -191,11 +191,11 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def find_perf_ibs_result_directories(results_base_path):
     """查找所有包含perf_ibs_op.log数据的结果目录（使用最新的timestamp运行）"""
@@ -204,7 +204,7 @@ def find_perf_ibs_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -213,7 +213,7 @@ def find_perf_ibs_result_directories(results_base_path):
         if not os.path.exists(workload_path):
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
@@ -264,7 +264,7 @@ def generate_access_distribution_histograms(grouped_data):
         print(f"正在生成直方图: {workload} with {mem_policy}")
         
         # 为每个tiering版本生成单独的直方图
-        for tiering_version, ibs_data in tiering_data.items():
+        for NET_CONFIGsion, ibs_data in tiering_data.items():
             if not ibs_data or 'page_hits' not in ibs_data:
                 continue
                 
@@ -276,7 +276,7 @@ def generate_access_distribution_histograms(grouped_data):
             
             # 创建图形
             fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
-            fig.suptitle(f'IBS Access Distribution: {workload} - {mem_policy} - {tiering_version}', 
+            fig.suptitle(f'IBS Access Distribution: {workload} - {mem_policy} - {NET_CONFIGsion}', 
                         fontsize=16, fontweight='bold')
             
             # 1. Base Page Access Count Histogram
@@ -362,7 +362,7 @@ def generate_access_distribution_histograms(grouped_data):
             plt.tight_layout()
             
             # 保存图片
-            plot_filename = f"{workload}_{mem_policy}_{tiering_version}_access_distribution.png"
+            plot_filename = f"{workload}_{mem_policy}_{NET_CONFIGsion}_access_distribution.png"
             plot_filepath = os.path.join(plots_dir, plot_filename)
             plt.savefig(plot_filepath, dpi=300, bbox_inches='tight')
             print(f"Histogram saved to: {plot_filepath}")
@@ -376,17 +376,17 @@ def generate_access_distribution_histograms(grouped_data):
                         fontsize=16, fontweight='bold')
             
             # THP Efficiency Comparison
-            tiering_versions = []
+            NET_CONFIGsions = []
             thp_efficiencies = []
             colors = plt.cm.Set3(np.linspace(0, 1, len(tiering_data)))
             
-            for i, (tiering_version, ibs_data) in enumerate(tiering_data.items()):
+            for i, (NET_CONFIGsion, ibs_data) in enumerate(tiering_data.items()):
                 if ibs_data and 'thp_efficiency' in ibs_data:
-                    tiering_versions.append(tiering_version)
+                    NET_CONFIGsions.append(NET_CONFIGsion)
                     thp_efficiencies.append(ibs_data['thp_efficiency'])
             
-            if tiering_versions:
-                bars = ax1.bar(tiering_versions, thp_efficiencies, color=colors, alpha=0.7, edgecolor='black')
+            if NET_CONFIGsions:
+                bars = ax1.bar(NET_CONFIGsions, thp_efficiencies, color=colors, alpha=0.7, edgecolor='black')
                 ax1.set_xlabel('Tiering Version')
                 ax1.set_ylabel('THP Efficiency (%)')
                 ax1.set_title('THP Efficiency Comparison')
@@ -400,14 +400,14 @@ def generate_access_distribution_histograms(grouped_data):
             
             # Hot Region Percentage Comparison
             hot_region_percents = []
-            for tiering_version, ibs_data in tiering_data.items():
+            for NET_CONFIGsion, ibs_data in tiering_data.items():
                 if ibs_data and 'hot_region_percent' in ibs_data:
                     hot_region_percents.append(ibs_data['hot_region_percent'])
                 else:
                     hot_region_percents.append(0)
             
-            if tiering_versions:
-                bars = ax2.bar(tiering_versions, hot_region_percents, color=colors, alpha=0.7, edgecolor='black')
+            if NET_CONFIGsions:
+                bars = ax2.bar(NET_CONFIGsions, hot_region_percents, color=colors, alpha=0.7, edgecolor='black')
                 ax2.set_xlabel('Tiering Version')
                 ax2.set_ylabel('Hot Region Percentage (%)')
                 ax2.set_title('Hot Region Percentage Comparison')
@@ -439,13 +439,13 @@ def create_perf_ibs_tables(grouped_data):
         print(f"正在生成表格: {workload} with {mem_policy}")
         
         # 为每个tiering版本生成单独的CSV文件
-        for tiering_version, ibs_data in tiering_data.items():
+        for NET_CONFIGsion, ibs_data in tiering_data.items():
             if not ibs_data:  # 跳过空数据
                 continue
                 
             # 准备单行数据
             row = {
-                'Tiering_Version': tiering_version,
+                'NET_CONFIGsion': NET_CONFIGsion,
                 'Target_PID': ibs_data.get('target_pid', 'N/A'),
                 'Total_Samples': ibs_data.get('total_samples', 0),
                 'Unique_Pages': ibs_data.get('unique_pages', 0),
@@ -465,7 +465,7 @@ def create_perf_ibs_tables(grouped_data):
             
             # 重新排序列以便更好的显示
             column_order = [
-                'Tiering_Version',
+                'NET_CONFIGsion',
                 'Target_PID',
                 'Total_Samples',
                 'Unique_Pages',
@@ -500,18 +500,18 @@ def create_perf_ibs_tables(grouped_data):
             
             # 显示表格
             print(f"\n{'='*120}")
-            print(f"Perf IBS Statistics: {workload} with {mem_policy} - {tiering_version}")
+            print(f"Perf IBS Statistics: {workload} with {mem_policy} - {NET_CONFIGsion}")
             print(f"{'='*120}")
             print(df.to_string(index=False))
             
             # 保存到CSV文件
-            csv_filename = f"{workload}_{mem_policy}_{tiering_version}_perf_ibs_stats.csv"
+            csv_filename = f"{workload}_{mem_policy}_{NET_CONFIGsion}_perf_ibs_stats.csv"
             csv_filepath = os.path.join(output_dir, csv_filename)
             df.to_csv(csv_filepath, index=False)
             print(f"Table saved to: {csv_filepath}")
             
             # 计算一些统计信息
-            print(f"\nStatistics Summary for {workload} with {mem_policy} - {tiering_version}:")
+            print(f"\nStatistics Summary for {workload} with {mem_policy} - {NET_CONFIGsion}:")
             print(f"  Total samples: {df['Total Samples'].iloc[0]:,}")
             print(f"  Unique pages: {df['Unique Pages'].iloc[0]:,}")
             print(f"  THP efficiency: {df['THP Efficiency (%)'].iloc[0]:.1f}%")
@@ -522,7 +522,7 @@ import re
 from collections import defaultdict
 import sys
 
-def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, tiering_version, output_dir="perf_ibs_tables"):
+def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, NET_CONFIGsion, output_dir="perf_ibs_tables"):
     pid = workload_pid
     try:
         # Get IBS data for target PID
@@ -569,7 +569,7 @@ def analyze_ibs_hot_pages(perf_ibs_log, workload_pid, workload, mem_policy, tier
         os.makedirs(output_dir, exist_ok=True)
         
         # 生成输出文件名
-        analysis_filename = f"{workload}_{mem_policy}_{tiering_version}_ibs_hot_pages_analysis.txt"
+        analysis_filename = f"{workload}_{mem_policy}_{NET_CONFIGsion}_ibs_hot_pages_analysis.txt"
         analysis_filepath = os.path.join(output_dir, analysis_filename)
         
         # 打开文件进行写入

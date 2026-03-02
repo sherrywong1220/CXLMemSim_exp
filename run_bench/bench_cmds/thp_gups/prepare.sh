@@ -1,5 +1,0 @@
-#!/bin/bash
-BIN_DIR=${WORKLOAD_DIR}/THP_GUPS
-BENCH_RUN="${BIN_DIR}/thp_gups --buffer_size=64G --hotspot_size=16G --base_hot_shift=2 --threads=48 --distribution=hotspot --hotspot_prob=80 --read_ratio=80 --duration=60"
-
-# Mem size: 64.0GB

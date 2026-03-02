@@ -5,14 +5,14 @@
 # Set environment variables for AMDuProf CXL data analysis
 # export DATA_ANAL_BENCHMARKS="thp_gups_20_40 thp_gups"
 export DATA_ANAL_BENCHMARKS="thp_gups_20_40_op"
-export DATA_ANAL_TIERING_VERS="autonuma_tiering_thp autonuma_tiering_thp_512K autonuma_tiering_thp_64K"
+export DATA_ANAL_NET_CONFIGS="autonuma_tiering_thp autonuma_tiering_thp_512K autonuma_tiering_thp_64K"
 export DATA_ANAL_MEM_POLICYS="cpu0.weightedinterleave0_2.14 cpu0.weightedinterleave0_2"
 export DATA_ANAL_LDRAM_SIZES="cxl_232G_mo_amduprof_cxl"
 
 echo "Starting AMDuProf CXL data parsing..."
 echo "Environment variables set:"
 echo "  DATA_ANAL_BENCHMARKS: $DATA_ANAL_BENCHMARKS"
-echo "  DATA_ANAL_TIERING_VERS: $DATA_ANAL_TIERING_VERS"
+echo "  DATA_ANAL_NET_CONFIGS: $DATA_ANAL_NET_CONFIGS"
 echo "  DATA_ANAL_MEM_POLICYS: $DATA_ANAL_MEM_POLICYS"
 echo "  DATA_ANAL_LDRAM_SIZES: $DATA_ANAL_LDRAM_SIZES"
 echo ""

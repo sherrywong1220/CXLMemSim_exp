@@ -222,9 +222,9 @@ def get_config_from_env():
         return None, None, None, None
     
     # Get tiering versions from environment variable
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Error: DATA_ANAL_TIERING_VERS environment variable is not set or empty")
+        print("Error: DATA_ANAL_NET_CONFIGS environment variable is not set or empty")
         return None, None, None, None
     
     # Get memory policies from environment variable
@@ -240,17 +240,17 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
     print(f"Configuration from environment:")
     print(f"  Benchmarks: {workloads}")
-    print(f"  Tiering versions: {tiering_versions}")
+    print(f"  Tiering versions: {NET_CONFIGsions}")
     print(f"  Memory policies: {mem_policies}")
     print(f"  LDRAM sizes: {ldram_sizes}")
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def parse_single_run(timestamp_dir_path, workload):
     """
@@ -303,7 +303,7 @@ def find_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -313,7 +313,7 @@ def find_result_directories(results_base_path):
             print(f"Warning: Workload directory not found {workload_path}")
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 print(f"Warning: Tiering directory not found {tiering_path}")

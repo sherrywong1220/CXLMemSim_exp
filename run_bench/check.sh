@@ -182,19 +182,6 @@ echo "   Kernel version: $kernel_version"
 kernel_arch=$(uname -m)
 echo "   Kernel architecture: $kernel_arch"
 
-# Check for mTHP support (Linux 6.7+)
-kernel_major=$(echo "$kernel_version" | cut -d. -f1)
-kernel_minor=$(echo "$kernel_version" | cut -d. -f2)
-
-if [ "$kernel_major" -gt 6 ] || ([ "$kernel_major" -eq 6 ] && [ "$kernel_minor" -ge 7 ]); then
-    print_status "OK" "Kernel version supports mTHP (multi-size THP)"
-elif [ "$kernel_major" -gt 5 ] || ([ "$kernel_major" -eq 5 ] && [ "$kernel_minor" -ge 4 ]); then
-    print_status "OK" "Kernel version supports modern NUMA balancing"
-    print_status "WARNING" "mTHP requires Linux 6.7+"
-else
-    print_status "WARNING" "Kernel version may have limited memory management features"
-fi
-
 echo ""
 echo "========================================="
 echo "Configuration Check Summary"

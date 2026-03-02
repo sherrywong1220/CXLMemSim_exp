@@ -1,1 +1,0 @@
-cat ${BIN_DIR}/perfdata-10GB/q20/exectime.txt >> ${LOG_DIR}/output.log

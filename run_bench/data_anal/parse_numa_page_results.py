@@ -63,9 +63,9 @@ def get_config_from_env():
         return None, None, None, None
     
     # 获取分层版本
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set")
         return None, None, None, None
     
     # 获取内存策略
@@ -81,11 +81,11 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def find_numa_page_result_directories(results_base_path):
     """查找所有包含numa_page.log数据的结果目录（使用最新的timestamp运行）"""
@@ -94,7 +94,7 @@ def find_numa_page_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -103,7 +103,7 @@ def find_numa_page_result_directories(results_base_path):
         if not os.path.exists(workload_path):
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
@@ -149,10 +149,10 @@ def create_numa_page_tables(grouped_data):
         # 准备表格数据
         table_data = []
         
-        for tiering_version, numa_data in tiering_data.items():
+        for NET_CONFIGsion, numa_data in tiering_data.items():
             if numa_data:  # 确保数据存在
                 row = {
-                    'Tiering_Version': tiering_version,
+                    'NET_CONFIGsion': NET_CONFIGsion,
                     'do_numa_page_calls': numa_data.get('do_numa_page_calls', 0),
                     'do_numa_page_latency_us': numa_data.get('do_numa_page_latency_us', 0),
                     'do_huge_pmd_numa_page_calls': numa_data.get('do_huge_pmd_numa_page_calls', 0),
@@ -166,7 +166,7 @@ def create_numa_page_tables(grouped_data):
             
             # 重新排序列以便更好的显示
             column_order = [
-                'Tiering_Version',
+                'NET_CONFIGsion',
                 'do_numa_page_calls',
                 'do_numa_page_latency_us',
                 'do_huge_pmd_numa_page_calls',

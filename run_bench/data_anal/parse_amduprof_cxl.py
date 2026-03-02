@@ -79,9 +79,9 @@ def get_config_from_env():
         print("Warning: DATA_ANAL_BENCHMARKS environment variable is not set")
         return None, None, None, None
     
-    tiering_env = os.getenv('DATA_ANAL_TIERING_VERS')
+    tiering_env = os.getenv('DATA_ANAL_NET_CONFIGS')
     if not tiering_env:
-        print("Warning: DATA_ANAL_TIERING_VERS environment variable is not set")
+        print("Warning: DATA_ANAL_NET_CONFIGS environment variable is not set")
         return None, None, None, None
     
     mem_policies_env = os.getenv('DATA_ANAL_MEM_POLICYS')
@@ -95,11 +95,11 @@ def get_config_from_env():
         return None, None, None, None
     
     workloads = benchmarks_env.split()
-    tiering_versions = tiering_env.split()
+    NET_CONFIGsions = tiering_env.split()
     mem_policies = mem_policies_env.split()
     ldram_sizes = ldram_sizes_env.split()
     
-    return workloads, tiering_versions, mem_policies, ldram_sizes
+    return workloads, NET_CONFIGsions, mem_policies, ldram_sizes
 
 def find_amduprof_result_directories(results_base_path):
     """Find all result directories containing AMDuProf CXL data (using the latest timestamp run)"""
@@ -108,7 +108,7 @@ def find_amduprof_result_directories(results_base_path):
         print("Error: Failed to get configuration from environment variables")
         return []
 
-    workloads, tiering_versions, mem_policies, ldram_sizes = config_result
+    workloads, NET_CONFIGsions, mem_policies, ldram_sizes = config_result
 
     result_dirs = []
 
@@ -117,7 +117,7 @@ def find_amduprof_result_directories(results_base_path):
         if not os.path.exists(workload_path):
             continue
 
-        for tiering in tiering_versions:
+        for tiering in NET_CONFIGsions:
             tiering_path = os.path.join(workload_path, tiering)
             if not os.path.exists(tiering_path):
                 continue
@@ -151,7 +151,7 @@ def find_amduprof_result_directories(results_base_path):
 def plot_cxl_memory_trends(workload, mem_policy, ldram_size, tiering_data):
     """
     Plot CXL memory traffic trends for a specific workload and memory policy
-    tiering_data: {tiering_version: cxl_data}
+    tiering_data: {NET_CONFIGsion: cxl_data}
     """
     fig, axes = plt.subplots(3, 1, figsize=(16, 16))
     fig.suptitle(f'CXL Memory Traffic Trends: {workload} with {mem_policy}', fontsize=22, fontweight='bold')
@@ -181,7 +181,7 @@ def plot_cxl_memory_trends(workload, mem_policy, ldram_size, tiering_data):
     ax3.tick_params(axis='both', which='major', labelsize=14)
     
     color_idx = 0
-    for tiering_version, cxl_data in tiering_data.items():
+    for NET_CONFIGsion, cxl_data in tiering_data.items():
         color = colors[color_idx % len(colors)]
         line_style = line_styles[color_idx % len(line_styles)]
         color_idx += 1
@@ -193,13 +193,13 @@ def plot_cxl_memory_trends(workload, mem_policy, ldram_size, tiering_data):
             total_bws = [entry['total_cxl_bw'] for entry in cxl_data]
             
             ax1.plot(times, read_bws, color=color, linestyle=line_style,
-                    marker='o', markersize=3, label=tiering_version, linewidth=2, alpha=0.8)
+                    marker='o', markersize=3, label=NET_CONFIGsion, linewidth=2, alpha=0.8)
             
             ax2.plot(times, write_bws, color=color, linestyle=line_style,
-                    marker='s', markersize=3, label=tiering_version, linewidth=2, alpha=0.8)
+                    marker='s', markersize=3, label=NET_CONFIGsion, linewidth=2, alpha=0.8)
             
             ax3.plot(times, total_bws, color=color, linestyle=line_style,
-                    marker='^', markersize=3, label=tiering_version, linewidth=2, alpha=0.8)
+                    marker='^', markersize=3, label=NET_CONFIGsion, linewidth=2, alpha=0.8)
     
     ax1.legend(loc='upper right', framealpha=0.9, fontsize=14)
     ax2.legend(loc='upper right', framealpha=0.9, fontsize=14)
@@ -229,13 +229,13 @@ def print_cxl_statistics(workload, mem_policy, tiering_data):
     print(f"CXL MEMORY TRAFFIC STATISTICS: {workload} with {mem_policy}")
     print(f"{'='*80}")
     
-    for tiering_version, cxl_data in tiering_data.items():
+    for NET_CONFIGsion, cxl_data in tiering_data.items():
         if cxl_data:
             read_bws = [entry['cxl_read_bw'] for entry in cxl_data]
             write_bws = [entry['cxl_write_bw'] for entry in cxl_data]
             total_bws = [entry['total_cxl_bw'] for entry in cxl_data]
             
-            print(f"\n{tiering_version}:")
+            print(f"\n{NET_CONFIGsion}:")
             print(f"  Duration: {len(cxl_data)} seconds")
             print(f"  Average Read BW: {np.mean(read_bws):.2f} GB/s")
             print(f"  Average Write BW: {np.mean(write_bws):.2f} GB/s")

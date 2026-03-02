@@ -1,9 +1,5 @@
-# eBPF_mem_tiering
+# CXLMemSim_EXP
 
-```
-git clone https://github.com/sherrywong1220/eBPF_mem_tiering.git
-cd eBPF_mem_tiering
-```
 
 ## Linux Kernel Configuration Check
 
