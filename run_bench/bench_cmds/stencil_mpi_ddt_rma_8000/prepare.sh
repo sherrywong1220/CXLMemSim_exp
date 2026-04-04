@@ -10,4 +10,4 @@ NITERS=50
 
 BIN="${WORKLOAD_DIR}/stencil/bin/stencil_mpi_ddt_rma"
 APP_RUN="${BIN} ${GRID_SIZE} ${ENERGY} ${NITERS}"
-BENCH_RUN="env ${RUN_ENV1} ${MPIRUN} ${MPIARGS} ${APP_RUN}"
+BENCH_RUN="${MPIRUN} ${MPIARGS} ${APP_RUN}"

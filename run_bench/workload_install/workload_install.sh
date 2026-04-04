@@ -1,6 +1,11 @@
-WORKLOAD_DIR=/mnt/nvme01/sherry/CXLMemSim_clflush/workloads
+WORKLOAD_DIR=/home/sherry/CXLMemSim/workloads
 
-# NPB
+
+# CXL MPI Library
+cd /root/gromacs/
+./build.sh
+
+# Stencil
 cd ${WORKLOAD_DIR}/stencil
 make
 

@@ -2,7 +2,7 @@
 
 # Todo: change DIR
 export DIR=/mnt/nvme01/sherry/CXLMemSim_exp/run_bench
-export WORKLOAD_DIR=/mnt/nvme01/sherry/CXLMemSim_clflush/workloads
+export WORKLOAD_DIR=/home/sherry/CXLMemSim/workloads
 
 function func_cache_flush() {
     echo 3 | sudo tee /proc/sys/vm/drop_caches
@@ -19,6 +19,7 @@ function func_prepare() {
 	ulimit -d unlimited
 	ulimit -s unlimited
 
+    echo 0 | sudo tee /proc/sys/kernel/numa_balancing
 	sudo sysctl kernel.perf_event_max_sample_rate=100000
 	${DIR}/scripts/disable_hyper_threading.sh
 	${DIR}/scripts/disable_cpu_freq_scaling.sh
@@ -35,6 +36,13 @@ function func_prepare() {
 
     export PPN=$((NUM_PROCESS / NUM_NODES))
 
+    if [[ -e ${DIR}/cc_type/${CC_TYPE}.sh ]]; then
+	    source ${DIR}/cc_type/${CC_TYPE}.sh
+	else
+	    echo "ERROR: ${CC_TYPE}.sh does not exist."
+	    exit -1
+	fi
+
     if [[ -e ${DIR}/config_settings/${NET_CONFIG}.sh ]]; then
 	    source ${DIR}/config_settings/${NET_CONFIG}.sh
 	else
@@ -49,13 +57,6 @@ function func_prepare() {
 
 	if [[ ! -e ${DIR}/bench_cmds/${BENCH_NAME}/post.sh ]]; then
 	    echo "ERROR: ${BENCH_NAME}/post.sh does not exist."
-	    exit -1
-	fi
-
-    if [[ -e ${DIR}/cc_type/${CC_TYPE}.sh ]]; then
-	    source ${DIR}/cc_type/${CC_TYPE}.sh
-	else
-	    echo "ERROR: ${CC_TYPE}.sh does not exist."
 	    exit -1
 	fi
 	sleep 5
@@ -191,7 +192,7 @@ function func_main() {
 
 	source ${DIR}/bench_cmds/${BENCH_NAME}/prepare.sh
 	export APP_RUN BENCH_RUN
-	CMD="stdbuf -oL -eL ${PINNING} ${BENCH_RUN} 2>&1 | tee -a ${LOG_DIR}/output.log"
+	CMD="${BENCH_RUN} 2>&1 | tee -a ${LOG_DIR}/output.log"
 	echo "${CMD}" | tee ${LOG_DIR}/output.log
 	
 	eval "${CMD} &"

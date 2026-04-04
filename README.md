@@ -15,19 +15,12 @@ cd run_bench/workload_install
 bash workload_install.sh
 ```
 
-## Build other moduels
-
-To build  `memeater`, edit `LOCAL_NUMA` to the NUMA node number of the default tier, and `FARMEM_NUMA` to the NUMA node number of the alternate tier in `run_bench/memeater/memeater.c`
+## Generate Benchmarks Execution Script
 
 ```
 cd run_bench
-cd memeater
-sudo make
-```
+bash gen_one_allgather_mpi_cxl_node1.sh
 
-## Run Benchmarks
-
-```
-cd run_bench
-bash run_tpp_mTHP_cxl_232G.sh
+# scp generated scripts in eval_scripts to QEMU VM
+scp /home/sherry/CXLMemSim_exp/run_bench/eval_scripts/run_osu_alltoall_mpi_cxl_node1_20260302.sh root@192.168.100.20:/root/cxlmemsim_eval/
 ```
