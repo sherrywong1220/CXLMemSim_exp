@@ -1,4 +1,4 @@
 #!/bin/bash
 
-APP_RUN="/root/osu-micro-benchmarks-7.4-ext/libexec/osu-micro-benchmarks/mpi/one-sided/osu_get_bw -m :16384 -i 200"
+APP_RUN="${OSU_BENCHMARKS_DIR}/mpi/one-sided/osu_get_bw -m :16384 -i 200"
 BENCH_RUN="${MPIRUN} ${MPIARGS} ${APP_RUN}"

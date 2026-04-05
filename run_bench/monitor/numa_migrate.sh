@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Set DIR to the run_bench directory
-DIR=${DIR:-"/home/sherry/projects/eBPF_mem_tiering/run_bench"}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/../../env.sh"
+DIR=${DIR:-"$(cd "${SCRIPT_DIR}/.." && pwd)"}
 
 LOG_DIR=${1:-"/tmp/numa_migrate_logs"}
 

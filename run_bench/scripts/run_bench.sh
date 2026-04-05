@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Todo: change DIR
-export DIR=/mnt/nvme01/sherry/CXLMemSim_exp/run_bench
-export WORKLOAD_DIR=/home/sherry/CXLMemSim/workloads
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+source "${DIR}/../env.sh"
 
 function func_cache_flush() {
     echo 3 | sudo tee /proc/sys/vm/drop_caches
