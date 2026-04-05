@@ -135,6 +135,13 @@ if [[ "${need_header}" == true ]]; then
       echo "export CXL_MEM_SIZE=\"${CXL_MEM_SIZE:-$((4*1024*1024*1024))}\""
     fi
     echo ""
+
+    # cmpi uses MPICH without CXL shim; clear LD_PRELOAD to avoid interference
+    if [[ -z "${LD_PRELOAD+x}" || -z "${LD_PRELOAD}" ]]; then
+      echo "unset LD_PRELOAD"
+      echo "export LD_PRELOAD"
+      echo ""
+    fi
   } > "${OUT_FILE}"
 fi
 

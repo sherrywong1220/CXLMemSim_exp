@@ -6,11 +6,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-BENCH_NAME="osu_get_bw"
-USE_CASE_BASE="osu_get_bw_mpi_cxl_node1_20260302"
-NET_CONFIG="mpi_cxl"
+BENCH_NAME="osu_get_mbw"
+USE_CASE_BASE="osu_get_mbw_cmpi_node1_20260302"
+NET_CONFIG="cmpi"
 NUM_NODES="1"
-PROCESS_LIST="2"
+PROCESS_LIST="2 4 8 16 32"
 OUT_DIR="${SCRIPT_DIR}/eval_scripts"
 CC_TYPE="nocc"
 
@@ -30,4 +30,3 @@ for p in ${PROCESS_LIST}; do
 done
 
 echo "Done. Script: ${OUT_DIR%/}/run_${USE_CASE_BASE}.sh"
-
