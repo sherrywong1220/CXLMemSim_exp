@@ -164,6 +164,11 @@ write_block() {
     echo "sleep 10"
     echo "echo '${escaped_cmd}' | tee \"\${LOG_DIR}/output.log\""
     echo "${full_cmd}"
+    # lulesh's cxl_rapid bump allocator persists state on /dev/dax0.0;
+    # wipe the device after each case so the next run reinitializes cleanly.
+    if [[ "${BENCH_NAME}" == lulesh* ]]; then
+      echo "sudo \"\${DIR}/clear_dax\""
+    fi
     echo ""
   } >> "${OUT_FILE}"
 }
