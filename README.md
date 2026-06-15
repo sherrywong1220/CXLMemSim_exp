@@ -40,10 +40,10 @@ make CC=/home/sherry/openmpi-install/bin/mpicc MPICC=/home/sherry/openmpi-instal
     --prefix=/home/sherry/mpich_cxl-install \
     --with-shared-memory=cxl \
     --disable-fortran \
-    CC=/home/sherry/gcc-12.3.0/bin/gcc \
-    CXX=/home/sherry/gcc-12.3.0/bin/g++ \
+    CC=/home/sherry/gcc-12.3.0-install/bin/gcc \
+    CXX=/home/sherry/gcc-12.3.0-install/bin/g++ \
     MPICHLIB_CFLAGS="-march=native -mclflushopt" \
-    LDFLAGS="-L/home/sherry/gcc-12.3.0/lib64 -Wl,-rpath,/home/sherry/gcc-12.3.0/lib64"
+    LDFLAGS="-L/home/sherry/gcc-12.3.0-install/lib64 -Wl,-rpath,/home/sherry/gcc-12.3.0-install/lib64"
 
 make -j16 && make install
 ```
