@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [[ "${NET_CONFIG}" == "cmpi" || "${NET_CONFIG}" == "mpi_cxl_qemuless" ]]; then
+if [[ "${NET_CONFIG}" == "cmpi" || "${NET_CONFIG}" == "mpi_cxl_qemuless" || "${NET_CONFIG}" == "openmpi_native" ]]; then
   OSU_MSG_SIZE=":1048576"
 else
   OSU_MSG_SIZE=":16384"
 fi
 
-APP_RUN="${OSU_BENCH_DIR}/mpi/collective/osu_allreduce -m ${OSU_MSG_SIZE} -i 200"
+APP_RUN="${OSU_BENCH_DIR}/mpi/collective/blocking/osu_allreduce -m ${OSU_MSG_SIZE} -i 200"
 BENCH_RUN="${MPIRUN} ${MPIARGS} ${APP_RUN}"
 
