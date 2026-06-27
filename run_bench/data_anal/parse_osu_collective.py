@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Parse OSU collective (allreduce / allgather / alltoall) latency results and emit
-tidy + wide comparison CSVs across MPI stacks (net_configs).
+tidy + wide comparison CSVs across MPI "series".
+
+A *series* is a (net_config, cc_type) pair with a short label -- this lets the
+same net_config appear more than once under different cache-control shims (e.g.
+qemuless with nocc vs qemuless with CLFLUSHOPT, which mirrors cMPI's flush path).
 
 Result tree (produced by gen_eval.sh eval scripts):
   results/<bench>/<net_config>/<cc_type>/<num_process>/<usecase>/<timestamp>/output.log
@@ -12,15 +16,15 @@ The OSU output embeds a latency table:
   ...
   1048576               846.32
 
-Config via env vars (space-separated), with sensible defaults for this study:
-  DATA_ANAL_BENCHMARKS   default: "osu_allreduce osu_allgather osu_alltoall"
-  DATA_ANAL_NET_CONFIGS  default: "mpi_cxl_qemuless openmpi_native cmpi"
-  DATA_ANAL_CC_TYPE      default: "nocc"
+Config via env vars:
+  DATA_ANAL_BENCHMARKS  space-separated; default "osu_allreduce osu_allgather osu_alltoall"
+  DATA_ANAL_SERIES      space-separated "net_config:cc_type[:label]" entries.
+                        Default is the four-way study below.
 
 Outputs (under data_anal/):
-  osu_collective_long.csv     -> benchmark,net_config,num_process,msg_size,avg_latency_us
+  osu_collective_long.csv     -> series,net_config,cc_type,benchmark,num_process,msg_size,avg_latency_us
   osu_collective_compare.csv  -> per (benchmark,num_process,msg_size): one column per
-                                 net_config + ratios vs the first net_config present.
+                                 series + ratios vs the first (baseline) series.
 """
 import os
 import re
@@ -34,10 +38,30 @@ REPO_RESULTS = os.path.join(
 BENCHMARKS = os.getenv(
     "DATA_ANAL_BENCHMARKS", "osu_allreduce osu_allgather osu_alltoall"
 ).split()
-NET_CONFIGS = os.getenv(
-    "DATA_ANAL_NET_CONFIGS", "mpi_cxl_qemuless openmpi_native cmpi"
-).split()
-CC_TYPE = os.getenv("DATA_ANAL_CC_TYPE", "nocc")
+
+# Default series for this study. First entry is the comparison baseline.
+DEFAULT_SERIES = [
+    ("mpi_cxl_qemuless", "nocc", "qemuless_nocc"),
+    ("mpi_cxl_qemuless", "cc_clflushopt_clflushopt", "qemuless_clflushopt"),
+    ("openmpi_native", "nocc", "openmpi_native"),
+    ("cmpi", "nocc", "cmpi"),
+]
+
+
+def load_series():
+    env = os.getenv("DATA_ANAL_SERIES")
+    if not env:
+        return DEFAULT_SERIES
+    series = []
+    for tok in env.split():
+        parts = tok.split(":")
+        net, cc = parts[0], parts[1]
+        label = parts[2] if len(parts) > 2 else f"{net}__{cc}"
+        series.append((net, cc, label))
+    return series
+
+
+SERIES = load_series()
 
 # A data row in the OSU latency table: "<size>   <latency>"
 ROW_RE = re.compile(r"^\s*(\d+)\s+(\d+\.?\d*)\s*$")
@@ -67,9 +91,9 @@ def parse_latency_table(output_log_path):
     return rows
 
 
-def newest_run_dir(bench, net):
-    """Newest timestamp dir per num_process under bench/net/CC_TYPE/<np>/<usecase>/<ts>."""
-    base = os.path.join(REPO_RESULTS, bench, net, CC_TYPE)
+def newest_run_dir(bench, net, cc):
+    """Newest timestamp dir per num_process under bench/net/cc/<np>/<usecase>/<ts>."""
+    base = os.path.join(REPO_RESULTS, bench, net, cc)
     found = {}  # np(int) -> output.log path (newest ts)
     if not os.path.isdir(base):
         return found
@@ -88,68 +112,69 @@ def newest_run_dir(bench, net):
 def main():
     print(f"results root : {REPO_RESULTS}")
     print(f"benchmarks   : {BENCHMARKS}")
-    print(f"net_configs  : {NET_CONFIGS}")
-    print(f"cc_type      : {CC_TYPE}")
+    print("series       :")
+    for net, cc, label in SERIES:
+        print(f"               {label:22s} = {net} / {cc}")
 
-    # long_rows[(bench, np, size)][net] = latency
+    # table[(bench, np, size)][label] = latency
     table = {}
     long_rows = []
-    seen_nets = []  # preserve order, only nets that produced data
+    seen = []  # series labels that actually produced data (preserve order)
 
     for bench in BENCHMARKS:
-        for net in NET_CONFIGS:
-            runs = newest_run_dir(bench, net)
+        for net, cc, label in SERIES:
+            runs = newest_run_dir(bench, net, cc)
             if not runs:
-                print(f"  - {bench:14s} {net:18s}: no results")
+                print(f"  - {bench:14s} {label:22s}: no results")
                 continue
             n_pts = 0
             for np_, log in sorted(runs.items()):
                 pts = parse_latency_table(log)
                 if not pts:
-                    print(f"  ! {bench} {net} np={np_}: no latency table "
+                    print(f"  ! {bench} {label} np={np_}: no latency table "
                           f"(crashed/empty) -> {log}")
                     continue
-                if net not in seen_nets:
-                    seen_nets.append(net)
+                if label not in seen:
+                    seen.append(label)
                 for size, lat in pts:
-                    long_rows.append([bench, net, np_, size, lat])
-                    table.setdefault((bench, np_, size), {})[net] = lat
+                    long_rows.append([label, net, cc, bench, np_, size, lat])
+                    table.setdefault((bench, np_, size), {})[label] = lat
                     n_pts += 1
-            print(f"  + {bench:14s} {net:18s}: {len(runs)} np x sizes "
+            print(f"  + {bench:14s} {label:22s}: {len(runs)} np x sizes "
                   f"= {n_pts} points")
 
     out_dir = os.path.dirname(os.path.abspath(__file__))
     long_path = os.path.join(out_dir, "osu_collective_long.csv")
     with open(long_path, "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["benchmark", "net_config", "num_process",
-                    "msg_size", "avg_latency_us"])
+        w.writerow(["series", "net_config", "cc_type", "benchmark",
+                    "num_process", "msg_size", "avg_latency_us"])
         w.writerows(long_rows)
     print(f"\nWrote {long_path} ({len(long_rows)} rows)")
 
-    # Wide comparison: one column per net_config + ratio vs baseline (first seen net).
-    base_net = seen_nets[0] if seen_nets else None
+    # Wide comparison: one column per series + ratio vs baseline (first seen series).
+    base = seen[0] if seen else None
     wide_path = os.path.join(out_dir, "osu_collective_compare.csv")
-    header = ["benchmark", "num_process", "msg_size"] + seen_nets
-    for net in seen_nets:
-        if net != base_net:
-            header.append(f"{net}/{base_net}")
+    header = ["benchmark", "num_process", "msg_size"] + seen
+    for label in seen:
+        if label != base:
+            header.append(f"{label}/{base}")
     with open(wide_path, "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(header)
         for (bench, np_, size) in sorted(table.keys()):
             cells = table[(bench, np_, size)]
             row = [bench, np_, size] + [
-                (f"{cells[net]:.2f}" if net in cells else "") for net in seen_nets
+                (f"{cells[label]:.2f}" if label in cells else "") for label in seen
             ]
-            base_val = cells.get(base_net)
-            for net in seen_nets:
-                if net == base_net:
+            base_val = cells.get(base)
+            for label in seen:
+                if label == base:
                     continue
-                v = cells.get(net)
+                v = cells.get(label)
                 row.append(f"{v / base_val:.3f}" if v and base_val else "")
             w.writerow(row)
-    print(f"Wrote {wide_path} (baseline net_config = {base_net})")
+    print(f"Wrote {wide_path} (baseline series = {base})")
 
 
 if __name__ == "__main__":
