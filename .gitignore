@@ -8,3 +8,4 @@ env.sh
 *.png
 *CLAUDE*
 jemalloc.stats
+*.pyc
