@@ -16,32 +16,32 @@ export LD_PRELOAD
 LOG_DIR="${DIR}/results/osu_allreduce/openmpi_native/nocc/2/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 2 --map-by ppr:2:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 2 --map-by ppr:2:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 2 --map-by ppr:2:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 2 --map-by ppr:2:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/openmpi_native/nocc/4/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 4 --map-by ppr:4:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 4 --map-by ppr:4:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 4 --map-by ppr:4:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 4 --map-by ppr:4:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/openmpi_native/nocc/8/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 8 --map-by ppr:8:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 8 --map-by ppr:8:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 8 --map-by ppr:8:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 8 --map-by ppr:8:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/openmpi_native/nocc/16/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 16 --map-by ppr:16:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 16 --map-by ppr:16:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 16 --map-by ppr:16:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 16 --map-by ppr:16:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/openmpi_native/nocc/32/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 32 --map-by ppr:32:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 32 --map-by ppr:32:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 32 --map-by ppr:32:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/openmpi-install/bin/mpirun --allow-run-as-root -np 32 --map-by ppr:32:node /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-openmpi/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allgather/openmpi_native/nocc/2/collective_openmpi_native_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"

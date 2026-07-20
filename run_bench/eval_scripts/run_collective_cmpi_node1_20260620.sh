@@ -16,32 +16,32 @@ export LD_PRELOAD
 LOG_DIR="${DIR}/results/osu_allreduce/cmpi/nocc/2/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 2 -ppn 2 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/mpich_cxl-install/bin/mpirun -np 2 -ppn 2 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 2 -ppn 2 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/mpich_cxl-install/bin/mpirun -np 2 -ppn 2 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/cmpi/nocc/4/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 4 -ppn 4 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/mpich_cxl-install/bin/mpirun -np 4 -ppn 4 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 4 -ppn 4 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/mpich_cxl-install/bin/mpirun -np 4 -ppn 4 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/cmpi/nocc/8/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 8 -ppn 8 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/mpich_cxl-install/bin/mpirun -np 8 -ppn 8 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 8 -ppn 8 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/mpich_cxl-install/bin/mpirun -np 8 -ppn 8 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/cmpi/nocc/16/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 16 -ppn 16 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/mpich_cxl-install/bin/mpirun -np 16 -ppn 16 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 16 -ppn 16 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/mpich_cxl-install/bin/mpirun -np 16 -ppn 16 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allreduce/cmpi/nocc/32/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"
 sleep 10
-echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 32 -ppn 32 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
-/home/sherry/mpich_cxl-install/bin/mpirun -np 32 -ppn 32 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
+echo '/home/sherry/mpich_cxl-install/bin/mpirun -np 32 -ppn 32 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log' | tee "${LOG_DIR}/output.log"
+/home/sherry/mpich_cxl-install/bin/mpirun -np 32 -ppn 32 /mnt/nvme01/sherry/workloads/osu-micro-benchmarks-7.4-ext-mpich/c/mpi/collective/blocking/osu_allreduce -T mpi_float -m :1048576 -i 200 2>&1 | tee -a ${LOG_DIR}/output.log
 
 LOG_DIR="${DIR}/results/osu_allgather/cmpi/nocc/2/collective_cmpi_node1_20260620/$(date +%Y%m%d%H%M)"
 mkdir -p "${LOG_DIR}"

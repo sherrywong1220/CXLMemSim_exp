@@ -12,7 +12,11 @@ set -euo pipefail
 #   osu_get_bw       2p  - bulk RMA reads, large invalidate ranges
 #   osu_allgather   16p  - flat CXL collective: flush own slot + invalidate N-1
 #   osu_alltoall    16p  - flat CXL collective, transpose reads
-#   osu_allreduce   16p  - passthrough (datatype not on allowlist): negative control
+#   osu_allreduce   16p  - CXL collective for sizes <= 4096B via -T mpi_float
+#                          (probe-verified 2026-07-19; was MPI_CHAR passthrough
+#                          before -T mpi_float was added to bench_cmds — data
+#                          generated prior to that is the passthrough negative
+#                          control, not comparable with float-datatype runs)
 #   lulesh_baseline  8p  - end-to-end app, mailbox Isend/Irecv path
 #
 # All seven CC variants run for every benchmark. nocc is the no-coherence
