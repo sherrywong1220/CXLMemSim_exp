@@ -3,20 +3,27 @@
 Cross-application CC-policy preference analysis.
 
 Consumes app_cc_pref_median.csv (from parse_app_cc_pref.py) and reduces each
-benchmark to one or more *application operating points*, each summarizing a
-communication regime with a single scalar per cc_type:
+benchmark to one or more *application operating points*. Each point fixes ONE
+message size (size_lo == size_hi; a band would average away the winner flips
+this figure exists to show), so the scalar per cc_type is simply the cross-rep
+median at that size. Sizes are chosen where the per-size winner analysis shows
+a policy-sensitive spread, and jointly so that every coherent policy wins
+somewhere:
 
-  put_lat_small   osu_put_latency  2p  geomean latency over 1..256 B     lower
-  get_lat_small   osu_get_latency  2p  geomean latency over 1..256 B     lower
-  put_lat_large   osu_put_latency  2p  geomean latency over 64K..1M      lower
-  get_lat_large   osu_get_latency  2p  geomean latency over 64K..1M      lower
-  put_bw_large    osu_put_bw       2p  geomean bandwidth over 64K..1M    higher
-  get_bw_large    osu_get_bw       2p  geomean bandwidth over 64K..1M    higher
-  allgather_flat  osu_allgather   16p  geomean latency over 512..4096    lower
-  alltoall_flat   osu_alltoall    16p  geomean latency over 512..4096    lower
-  allreduce_ctrl  osu_allreduce   16p  geomean latency over 512..4096    lower
-                                       (passthrough -> negative control)
-  lulesh_fom      lulesh_baseline  8p  FOM                               higher
+  put_lat_128B    osu_put_latency  2p  latency at 128 B      lower  clwb+cf
+  put_lat_16K     osu_put_latency  2p  latency at 16 KiB     lower  cfo+cfo
+  put_bw_32K      osu_put_bw       2p  bandwidth at 32 KiB   higher cfo+cfo
+  put_bw_1M       osu_put_bw       2p  bandwidth at 1 MiB    higher clwb+cf
+  get_lat_2K      osu_get_latency  2p  latency at 2 KiB      lower  clwb+cfo
+  get_lat_1M      osu_get_latency  2p  latency at 1 MiB      lower  cfo+cfo
+  get_bw_256K     osu_get_bw       2p  bandwidth at 256 KiB  higher clwb+cfo
+  allgather_256B  osu_allgather   16p  latency at 256 B      lower  cf+cf
+  allgather_512B  osu_allgather   16p  latency at 512 B      lower  cfo+cf
+  allgather_4K    osu_allgather   16p  latency at 4 KiB      lower  cfo+cfo
+  alltoall_4K     osu_alltoall    16p  latency at 4 KiB      lower  cf+cfo
+  allreduce_ctrl  osu_allreduce   16p  latency at 2 KiB      lower
+                                       (hidden from the paper heatmap)
+  lulesh_fom      lulesh_baseline  8p  FOM                   higher
 
 For every operating point it reports each cc_type's value, the slowdown vs the
 best *coherent* policy (nocc excluded: it is only correct single-node), the
@@ -61,15 +68,18 @@ SHORT = {
 
 # (point, benchmark, np, size_lo, size_hi, direction)
 POINTS = [
-    ("put_lat_small", "osu_put_latency", "2", 1, 256, "lower"),
-    ("get_lat_small", "osu_get_latency", "2", 1, 256, "lower"),
-    ("put_lat_large", "osu_put_latency", "2", 65536, 1048576, "lower"),
-    ("get_lat_large", "osu_get_latency", "2", 65536, 1048576, "lower"),
-    ("put_bw_large", "osu_put_bw", "2", 65536, 1048576, "higher"),
-    ("get_bw_large", "osu_get_bw", "2", 65536, 1048576, "higher"),
-    ("allgather_flat", "osu_allgather", "16", 512, 4096, "lower"),
-    ("alltoall_flat", "osu_alltoall", "16", 512, 4096, "lower"),
-    ("allreduce_ctrl", "osu_allreduce", "16", 512, 4096, "lower"),
+    ("put_lat_128B", "osu_put_latency", "2", 128, 128, "lower"),
+    ("put_lat_16K", "osu_put_latency", "2", 16384, 16384, "lower"),
+    ("put_bw_32K", "osu_put_bw", "2", 32768, 32768, "higher"),
+    ("put_bw_1M", "osu_put_bw", "2", 1048576, 1048576, "higher"),
+    ("get_lat_2K", "osu_get_latency", "2", 2048, 2048, "lower"),
+    ("get_lat_1M", "osu_get_latency", "2", 1048576, 1048576, "lower"),
+    ("get_bw_256K", "osu_get_bw", "2", 262144, 262144, "higher"),
+    ("allgather_256B", "osu_allgather", "16", 256, 256, "lower"),
+    ("allgather_512B", "osu_allgather", "16", 512, 512, "lower"),
+    ("allgather_4K", "osu_allgather", "16", 4096, 4096, "lower"),
+    ("alltoall_4K", "osu_alltoall", "16", 4096, 4096, "lower"),
+    ("allreduce_ctrl", "osu_allreduce", "16", 2048, 2048, "lower"),
     ("lulesh_fom", "lulesh_baseline", "8", 0, 0, "higher"),
     ("lulesh27_fom", "lulesh_baseline", "27", 0, 0, "higher"),
     ("npb_is", "npb_is_d", "16", 0, 0, "lower"),

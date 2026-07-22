@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 df = pd.read_csv(os.path.join(HERE, "aralgo_cc_long.csv"))
+# The paper reports 16 processes only; drop other process counts.
+df = df[df["num_process"] == 16]
 
 BANDS = [("small<=1K", 0, 1024), ("mid2-32K", 2048, 32768),
          ("large64-256K", 65536, 262144)]

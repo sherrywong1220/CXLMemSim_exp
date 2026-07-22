@@ -28,9 +28,13 @@ PRETTY = {"osu_allgather": "Allgather", "osu_allreduce": "Allreduce",
           "osu_alltoall": "Alltoall"}
 
 # (config dir, cc dir, label, color, marker, linestyle, z, linewidth)
+# MEMU uses cc_clflushopt_clflushopt: the shim flushes with the same
+# clflushopt instruction cMPI's cxl_shm.c data path uses, so the comparison
+# is apples-to-apples on cache-control work (see gen_collective_qemuless_
+# clflushopt_node1.sh).
 SERIES = [
     ("cmpi",             "nocc", "cMPI (MPICH+CXL_SHM)", "#c1272d", "o", "-",  3, 1.8),
-    ("mpi_cxl_qemuless", "nocc", "MEMU (OpenMPI+shim)",    "#0057b7", "s", "-",  4, 1.8),
+    ("mpi_cxl_qemuless", "cc_clflushopt_clflushopt", "MEMU (OpenMPI+shim)", "#0057b7", "s", "-",  4, 1.8),
 ]
 
 

@@ -14,8 +14,10 @@ import re
 import statistics
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS = os.path.join(os.path.dirname(HERE), "results", "osu_allreduce",
-                       "mpi_cxl_qemuless")
+# Raw data lives at the CXLMemSim_exp root (two levels up from data_anal):
+#   <root>/osu_allreduce/mpi_cxl_qemuless/<cc>/<np>/<usecase>/<ts>/output.log
+RESULTS = os.path.join(os.path.dirname(os.path.dirname(HERE)),
+                       "osu_allreduce", "mpi_cxl_qemuless")
 
 ROW_RE = re.compile(r"^\s*(\d+)\s+(\d+\.?\d*)\s*$")
 HEADER_RE = re.compile(r"^#\s*Size\s+Avg Latency", re.IGNORECASE)
